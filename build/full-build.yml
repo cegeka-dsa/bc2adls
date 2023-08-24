@@ -1,0 +1,139 @@
+# Pipeline for building a PTE
+name: AL-BC2ADLS-CI-$(SourceBranchName)-$(Date:yyyyMMdd)$(Rev:.r)
+trigger:
+  batch: true
+  branches:
+    include:
+    - main
+  paths:
+    include:
+      - businesscentral
+
+variables:
+  AlFolder: '$(RepoLocalPath)\extensions\.alpackages'
+  BackupFolder: '$(RepoLocalPath)\extensions\database'
+  ContainerName: 'C$(Build.BuildId)'
+  RepoLocalPath: '$(Build.Repository.LocalPath)\bc2adls'
+  LicenseFile: '$(System.ArtifactsDirectory)\dev.bclicense'
+  DevOpsBuildsBranch: master
+  ProjectFolder: businesscentral
+  BuildScriptPath: '$(RepoLocalPath)\Build'
+  TargetAppFile: '<Set in script invoke-buildonly.ps1>'
+  AppVersion: '<Set in script invoke-buildonly.ps1>'
+  StorageAccount: '<Read from build-params in ERP AL repo>'
+  StorageContainer: '<Read from build-params in ERP AL repo>'
+
+parameters:
+- name: ERPBranchName
+  displayName: ERP AL Branch
+  type: string
+  default: 'master'
+
+- name: PublishApp
+  displayName: Force push app to storage container
+  type: boolean
+  default: false
+
+jobs:
+- job: Build
+  timeoutInMinutes: 60
+  workspace:
+    clean: all
+
+  pool:
+    name: 'ERP-VSTS-Builds-Docker'
+    demands:
+      - docker
+
+  steps:
+  - checkout: self
+    clean: true
+
+  - checkout: git://DynamicsEmpire/_git/DevOps.Builds@refs/heads/$(DevOpsBuildsBranch)
+    clean: false
+
+  - task: AzurePowerShell@4
+    displayName: 'Load pipeline modules'
+    inputs:
+      azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
+      ScriptType: 'FilePath'
+      ScriptPath: '$(Build.Repository.LocalPath)/DevOps.Builds/common/Install-cdsaPipelineModule.ps1'
+      ScriptArguments: '-ModuleName @("cdsa.build.al", "cdsa.devops", "bccontainerhelper") -Verbose'
+      azurePowerShellVersion: 'LatestVersion'
+    env:
+      TOKEN: $(System.AccessToken)
+
+  - task: AzurePowerShell@4
+    displayName: 'Download build-params'
+    inputs:
+      azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
+      ScriptType: 'FilePath'
+      ScriptPath: '$(BuildScriptPath)\Download-BuildParamFromRepo.ps1'
+      ScriptArguments: '-SourceBranch "${{parameters.ERPBranchName}}" -Verbose'
+      azurePowerShellVersion: 'LatestVersion'
+    env:
+      TOKEN: $(System.AccessToken)
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download build artifacts from ERP AL'
+    inputs:
+      buildType: 'specific'
+      project: '$(System.TeamProjectId)'
+      pipeline: '319'
+      buildVersionToDownload: 'latestFromBranch'
+      branchName: 'refs/heads/${{parameters.ERPBranchName}}'
+      downloadType: 'single'
+      artifactName: 'BuildDatabase'
+      downloadPath: '$(System.ArtifactsDirectory)'
+      cleanDestinationFolder: true
+
+  - task: PowerShell@2
+    displayName: Create container
+    inputs:
+      filePath: '$(BuildScriptPath)\New-BCContainer.ps1'
+      arguments: '-ProjectFolder "$(RepoLocalPath)/$(ProjectFolder)" -LicenseFile "$(LicenseFile)"'
+    env:
+      TOKEN: $(System.AccessToken)
+
+  - task: AzurePowerShell@4
+    displayName: 'Build apps'
+    inputs:
+      azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
+      ScriptType: 'FilePath'
+      ScriptPath: '$(BuildScriptPath)\Invoke-BuildOnly.ps1'
+      ScriptArguments: '-ProjectFolder "$(RepoLocalPath)\$(ProjectFolder)" -Verbose'
+      azurePowerShellVersion: 'LatestVersion'
+    env:
+      TOKEN: $(System.AccessToken)
+
+  - task: AzurePowerShell@4
+    displayName: 'Publish to Azure BLOB Storage'
+    inputs:
+      azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
+      ScriptType: 'FilePath'
+      ScriptPath: '$(BuildScriptPath)\Publish-AppToAzureStorage.ps1'
+      ScriptArguments: '-SourceFile "$(TargetAppFile)" -StorageAccountName $(StorageAccount) -StorageContainer $(StorageContainer) -Verbose'
+      azurePowerShellVersion: 'LatestVersion'
+    env:
+      TOKEN: $(System.AccessToken)
+    condition: and( succeeded(), or(eq(variables['Build.SourceBranchName'],'main'), eq('${{parameters.PublishApp}}','true')))
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish the App
+    inputs:
+      PathtoPublish: $(TargetAppFile)
+      ArtifactName: 'App' 
+      publishLocation: 'Container'
+
+  - task: andremarques023.DiagnosticTasks.DiagnosticTasks.AddBuildTag.AddBuildTag@1
+    displayName: 'Add build tag with version'
+    inputs:
+      tag: '$(AppVersion)'
+
+  - task: PowerShell@2
+    displayName: Remove all containers
+    inputs:
+      targetType: inline
+      script: Get-BcContainers|where-object {$_ -like "$(ContainerName)*"}|ForEach-Object {Remove-BcContainer -containerName $_ -ErrorAction SilentlyContinue}
+    condition: always()
+    enabled: true
