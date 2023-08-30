@@ -122,6 +122,15 @@ codeunit 82564 "ADLSE Util"
         end;
     end;
 
+    procedure GetUtcEpochWithTimezoneOffset(): DateTime
+    var
+        TypeHelper: Codeunit "Type Helper";
+        UtcOffset: Duration;
+    begin
+        TypeHelper.GetUserTimezoneOffset(UtcOffset);
+        exit(CreateDateTime(DMY2Date(1, 1, 1900), 0T) + UtcOffset);
+    end;
+
     procedure GetTableCaption(TableID: Integer): Text
     var
         RecRef: RecordRef;
@@ -227,7 +236,14 @@ codeunit 82564 "ADLSE Util"
     end;
 
     local procedure ConvertStringToText(Val: Text): Text
+    var
+        Char10, Char13 : Char;
     begin
+        Char10 := 10; // Line feed - '\n'
+        Char13 := 13; // Carriage return - '\r'
+
+        Val := Val.Replace(Char10, ' '); // remove the Line feed - '\n' character
+        Val := Val.Replace(Char13, ' '); // remove the Carriage return - '\r' character
         Val := Val.Replace('\', '\\'); // escape the escape character
         Val := Val.Replace('"', '\"'); // escape the quote character
         exit(StrSubstNo(QuotedTextTok, Val));
