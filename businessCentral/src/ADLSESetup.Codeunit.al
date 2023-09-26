@@ -80,10 +80,15 @@ codeunit 82560 "ADLSE Setup"
         ADLSECredentials: Codeunit "ADLSE Credentials";
     begin
         ADLSESetup.GetSingleton();
-        ADLSESetup.TestField(Container);
-        if not ADLSESetup."Multi- Company Export" then
-            if ADLSECurrentSession.AreAnySessionsActive() then
-                ADLSECurrentSession.CheckForNoActiveSessions();
+        if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Azure Data Lake" then
+            ADLSESetup.TestField(Container)
+        else
+            ADLSESetup.TestField(Workspace);
+
+        ADLSESetup.CheckSchemaExported;
+
+        if ADLSECurrentSession.AreAnySessionsActive() then
+            ADLSECurrentSession.CheckForNoActiveSessions();
 
         ADLSECredentials.Check();
     end;

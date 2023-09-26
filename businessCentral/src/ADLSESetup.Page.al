@@ -17,13 +17,18 @@ page 82560 "ADLSE Setup"
             group(Setup)
             {
                 Caption = 'Setup';
-                group(Account)
+                group(General)
                 {
                     Caption = 'Account';
-                    field(Container; Rec.Container)
+                    field(StorageType; Rec."Storage Type")
                     {
                         ApplicationArea = All;
-                        Tooltip = 'Specifies the name of the container where the data is going to be uploaded. Please refer to constraints on container names at https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata.';
+                        Tooltip = 'Specifies the type of storage type to use.';
+
+                        trigger OnValidate()
+                        begin
+                            CurrPage.Update(true);
+                        end;
                     }
                     field("Tenant ID"; StorageTenantID)
                     {
@@ -36,10 +41,36 @@ page 82560 "ADLSE Setup"
                             ADLSECredentials.SetTenantID(StorageTenantID);
                         end;
                     }
+                }
+
+                group(Account)
+                {
+                    Caption = 'Azure Data Lake';
+                    Editable = AzureDataLake;
+                    field(Container; Rec.Container)
+                    {
+                        ApplicationArea = All;
+                        Tooltip = 'Specifies the name of the container where the data is going to be uploaded. Please refer to constraints on container names at https://docs.microsoft.com/en-us/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata.';
+                    }
                     field(AccountName; Rec."Account Name")
                     {
                         ApplicationArea = All;
                         Tooltip = 'Specifies the name of the storage account.';
+                    }
+                }
+                group(MSFabric)
+                {
+                    Caption = 'Microsoft Fabric';
+                    Editable = not AzureDataLake;
+                    field(Workspace; Rec.Workspace)
+                    {
+                        ApplicationArea = All;
+                        Tooltip = 'Specifies the name of the Workspace where the data is going to be uploaded. This can be a name or a GUID.';
+                    }
+                    field(Lakehouse; Rec.Lakehouse)
+                    {
+                        ApplicationArea = All;
+                        Tooltip = 'Specifies the name of the Lakehouse where the data is going to be uploaded. This can be a name or a GUID ';
                     }
                 }
                 group(Access)
@@ -76,6 +107,7 @@ page 82560 "ADLSE Setup"
                     field(MaxPayloadSize; Rec.MaxPayloadSizeMiB)
                     {
                         ApplicationArea = All;
+                        Editable = not AzureDataLake;
                         Tooltip = 'Specifies the maximum size of the upload for each block of data in MiBs. A large value will reduce the number of iterations to upload the data but may interfear with the performance of other processes running on this environment.';
                     }
 
@@ -83,13 +115,6 @@ page 82560 "ADLSE Setup"
                     {
                         ApplicationArea = All;
                         ToolTip = 'Specifies the format in which to store the exported data in the ''data'' CDM folder. The Parquet format is recommended for storing the data with the best fidelity.';
-                    }
-
-                    field("Multi- Company Export"; Rec."Multi- Company Export")
-                    {
-                        ApplicationArea = All;
-                        Enabled = not ExportInProgress;
-                        ToolTip = 'Specifies if simultaneous exports of data from different companies in Business Central to the lake are allowed. Beware that setting this checkmark will prevent you from making any changes to the export schema. It is recommended that you set this checkmark only after the last changes to the CDM schema have been exported to the lake successfully. Enabling this field does not export data from other companies in the environment- to do that the export process needs to be started from within those companies.';
                     }
 
                     field("Skip Timestamp Sorting On Recs"; Rec."Skip Timestamp Sorting On Recs")
@@ -152,6 +177,22 @@ page 82560 "ADLSE Setup"
                 end;
             }
 
+            action(SchemaExport)
+            {
+                ApplicationArea = All;
+                Caption = 'Schema export';
+                Tooltip = 'This will export the schema of the tables selected in the setup to the lake. This is a one-time operation and should be done before the first export of data.';
+                Image = Start;
+
+                trigger OnAction()
+                var
+                    ADLSEExecution: Codeunit "ADLSE Execution";
+                begin
+                    ADLSEExecution.SchemaExport();
+                    CurrPage.Update();
+                end;
+            }
+
             action(Schedule)
             {
                 ApplicationArea = All;
@@ -210,6 +251,7 @@ page 82560 "ADLSE Setup"
                     ShowAs = SplitButton;
                     actionref(ExportNow_Promoted; ExportNow) { }
                     actionref(StopExport_Promoted; StopExport) { }
+                    actionref(SchemaExport_Promoted; SchemaExport) { }
                     actionref(Schedule_Promoted; Schedule) { }
                 }
                 actionref(ClearDeletedRecordsList_Promoted; ClearDeletedRecordsList) { }
@@ -219,6 +261,7 @@ page 82560 "ADLSE Setup"
     }
 
     var
+        AzureDataLake: Boolean;
         ClientSecretLbl: Label 'Secret not shown';
         ClientIdLbl: Label 'ID not shown';
 
@@ -243,6 +286,7 @@ page 82560 "ADLSE Setup"
         TrackedDeletedRecordsExist := not ADLSEDeletedRecord.IsEmpty();
         OldLogsExist := ADLSERun.OldRunsExist();
         UpdateNotificationIfAnyTableExportFailed();
+        AzureDataLake := Rec."Storage Type" = Rec."Storage Type"::"Azure Data Lake";
     end;
 
     var

@@ -78,6 +78,8 @@ table 82560 "ADLSE Setup"
         {
             Caption = 'Multi- company export';
             InitValue = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Schema update and export of data is now seperated.';
 
             trigger OnValidate()
             var
@@ -96,6 +98,26 @@ table 82560 "ADLSE Setup"
             Caption = 'Skip row version sorting';
             InitValue = false;
         }
+
+        field(25; "Storage Type"; Enum "ADLSE Storage Type")
+        {
+            Caption = 'Storage type';
+        }
+
+        field(30; Workspace; Text[100])
+        {
+            Caption = 'Workspace';
+        }
+        field(31; Lakehouse; Text[100])
+        {
+            Caption = 'Lakehouse';
+        }
+        field(35; "Schema Exported On"; DateTime)
+        {
+            Caption = 'Schema exported on';
+        }
+
+
     }
 
     keys
@@ -144,14 +166,32 @@ table 82560 "ADLSE Setup"
         exit(Rec.Get(GetPrimaryKeyValue()));
     end;
 
-    procedure CheckNoSimultaneousExportsAllowed()
-    begin
-        Rec.GetSingleton();
-        Rec.TestField("Multi- Company Export", false, ErrorInfo.Create(NoChangesAllowedErr));
-    end;
-
     local procedure GetPrimaryKeyValue() PKValue: Integer
     begin
         Evaluate(PKValue, PrimaryKeyValueLbl, 9);
+    end;
+
+    procedure GetStorageType(): Enum "ADLSE Storage Type"
+    begin
+        Rec.GetSingleton();
+        exit(Rec."Storage Type");
+    end;
+
+    procedure SchemaExported()
+    var
+        NoSchemaExportedErr: Label 'Schema already exported. Please export schema first before exporting the data.';
+    begin
+        Rec.GetSingleton();
+        if Rec."Schema Exported On" <> 0DT then
+            Message(NoSchemaExportedErr);
+    end;
+
+    procedure CheckSchemaExported()
+    var
+        NoSchemaExportedErr: Label 'No schema has been exported yet. Please export schema first before exporting the data.';
+    begin
+        Rec.GetSingleton();
+        if Rec."Schema Exported On" = 0DT then
+            Message(NoSchemaExportedErr);
     end;
 }
