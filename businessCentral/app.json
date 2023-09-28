@@ -1,7 +1,7 @@
 {
-  "id": "1688530c-452c-4b06-8947-ab4bf5b26053",
+  "id": "f50ed17c-be40-4d00-ad13-2e5132038664",
   "name": "Azure Data Lake Storage Export",
-  "publisher": "The bc2adls team",
+  "publisher": "cegeka",
   "brief": "Sync data from Business Central to the Azure storage",
   "description": "Exports data in chosen tables to the Azure Data Lake and keeps it in sync by incremental updates. Before you use this tool, please read the SUPPORT.md file at https://github.com/microsoft/bc2adls.",
   "version": "2.12.1.0",
