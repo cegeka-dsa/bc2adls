@@ -116,7 +116,7 @@ jobs:
       azurePowerShellVersion: 'LatestVersion'
     env:
       TOKEN: $(System.AccessToken)
-    condition: and( succeeded(), or(eq(variables['Build.SourceBranchName'],'main'), eq('${{parameters.PublishApp}}','true')))
+    condition: and( succeeded(), eq('${{parameters.PublishApp}}','true'))
 
   - task: PublishBuildArtifacts@1
     displayName: Publish the App
