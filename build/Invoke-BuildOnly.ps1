@@ -16,12 +16,17 @@ $SortedApps = Get-cdsaAppsListToCompile -ProjectFolder $ProjectFolder -Verbose
 New-cdsaAzureDevOpsSection -Message "Compile AL Project: $ProjectFolder"
 $BuildCredential = Get-cdsaBuildServerCredential
 foreach($AppFolder in $SortedApps) {
-    Compile-AppInNavContainer `
+    $AppFilename = Compile-AppInNavContainer `
         -credential $BuildCredential `
         -containerName $ContainerName `
         -appProjectFolder $AppFolder `
         -appSymbolsFolder $ProjectFolder `
         -appOutputFolder $ProjectFolder
+
+    # Use primary filename
+    if (!$TargetAppFile) {
+        $TargetAppFile = $AppFilename
+    }
 }
 <#Start-cdsaCompileALProject -BaseAppName $BaseAppName `
     -BaseAppModifiedName $BaseAppModifiedName `
@@ -33,14 +38,13 @@ foreach($AppFolder in $SortedApps) {
     -Verbose
 #>
 
-$AppPackageName = Get-cdsaAppPackageName -AppFolder $ProjectFolder
+$AppPackageName = Split-Path $TargetAppFile -Leaf
 $AppPackageNameParts=$AppPackageName.Split("_")
 $AppPublisher = $AppPackageNameParts[0]
 $AppName = $AppPackageNameParts[1]
 $AppVersion = $AppPackageNameParts[2].Replace('.app','')
 Write-Verbose "AppName: $AppName, Publisher: $AppPublisher, version: $AppVersion"
 
-$TargetAppFile = Join-Path $ProjectFolder $AppPackageName
 Write-Output "##vso[task.setvariable variable=TargetAppFile]$TargetAppFile" -Verbose
 Write-Output "##vso[task.setvariable variable=AppVersion]$AppVersion" -Verbose
 
