@@ -14,8 +14,10 @@ New-cdsaAzureDevOpsSection -Message "Get the list of Apps that need to compile"
 $SortedApps = Get-cdsaAppsListToCompile -ProjectFolder $ProjectFolder -Verbose
 
 New-cdsaAzureDevOpsSection -Message "Compile AL Project: $ProjectFolder"
+$BuildCredential = Get-cdsaBuildServerCredential
 foreach($AppFolder in $SortedApps) {
     Compile-AppInNavContainer `
+        -credential $BuildCredential `
         -containerName $ContainerName `
         -appProjectFolder $AppFolder `
         -appSymbolsFolder $ProjectFolder `
