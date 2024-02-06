@@ -10,13 +10,15 @@ param(
 )
 #Import-Module "C:\Projects\Git\DevOps.PSModules\Modules\cdsa.build.al\cdsa.build.al.psm1" -Force
 #$ProjectFolder = (Get-Location).Path + "\BusinessCentral"
+New-cdsaAzureDevOpsSection -Message "Get the list of Apps that need to compile"
+$SortedApps = Get-cdsaAppsListToCompile -ProjectFolder $ProjectFolder -Verbose
 
 New-cdsaAzureDevOpsSection -Message "Compile AL Project: $ProjectFolder"
 Start-cdsaCompileALProject -BaseAppName $BaseAppName `
     -BaseAppModifiedName $BaseAppModifiedName `
     -ContainerName $ContainerName `
     -ProjectFolder $ProjectFolder `
-    -AppsToCompile $ProjectFolder `
+    -AppsToCompile $SortedApps `
     -OutputFolder $ProjectFolder `
     -OutputCompilerLogs `
     -Verbose
