@@ -14,7 +14,14 @@ New-cdsaAzureDevOpsSection -Message "Get the list of Apps that need to compile"
 $SortedApps = Get-cdsaAppsListToCompile -ProjectFolder $ProjectFolder -Verbose
 
 New-cdsaAzureDevOpsSection -Message "Compile AL Project: $ProjectFolder"
-Start-cdsaCompileALProject -BaseAppName $BaseAppName `
+foreach($AppFolder in $SortedApps) {
+    Compile-AppInNavContainer `
+        -containerName $ContainerName `
+        -appProjectFolder $AppFolder `
+        -appSymbolsFolder $ProjectFolder `
+        -appOutputFolder $ProjectFolder
+}
+<#Start-cdsaCompileALProject -BaseAppName $BaseAppName `
     -BaseAppModifiedName $BaseAppModifiedName `
     -ContainerName $ContainerName `
     -ProjectFolder $ProjectFolder `
@@ -22,6 +29,7 @@ Start-cdsaCompileALProject -BaseAppName $BaseAppName `
     -OutputFolder $ProjectFolder `
     -OutputCompilerLogs `
     -Verbose
+#>
 
 $AppPackageName = Get-cdsaAppPackageName -AppFolder $ProjectFolder
 $AppPackageNameParts=$AppPackageName.Split("_")
