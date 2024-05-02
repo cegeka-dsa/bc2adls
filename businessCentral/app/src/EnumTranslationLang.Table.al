@@ -1,4 +1,6 @@
-table 82568 "ADLSE Enum Translation Lang"
+namespace Zig.ADLSE;
+
+table 11007164 "ADLSE Enum Translation Lang"
 {
     DataClassification = ToBeClassified;
     Caption = 'ADLSE Enum Translation Language';

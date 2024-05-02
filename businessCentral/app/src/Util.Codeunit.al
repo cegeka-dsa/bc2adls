@@ -1,6 +1,10 @@
+namespace Zig.ADLSE;
+
+using System.Reflection;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82564 "ADLSE Util"
+codeunit 11007177 "ADLSE Util"
 {
     Access = Internal;
 

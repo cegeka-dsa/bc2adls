@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82573 "ADLSE Clear Tracked Deletions"
+codeunit 11007162 "ADLSE Clear Tracked Deletions"
 {
     /// This codeunit removes the tracked deleted records- those that track deletions of records from tables being exported, so 
     /// that the data lake becomes aware of them and removes those records from the final set of records. Once, these trackings 

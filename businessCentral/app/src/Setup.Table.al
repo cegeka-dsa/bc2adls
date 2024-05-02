@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-table 82560 "ADLSE Setup"
+table 11007167 "ADLSE Setup"
 {
     Access = Internal;
     DataClassification = CustomerContent;

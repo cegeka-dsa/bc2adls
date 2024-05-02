@@ -1,6 +1,9 @@
+namespace Zig.ADLSE;
+
+using System.Integration;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82574 "ADLSE External Events"
+codeunit 11007168 "ADLSE External Events"
 {
     SingleInstance = true;
 

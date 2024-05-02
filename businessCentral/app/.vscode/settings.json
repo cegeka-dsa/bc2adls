@@ -3,7 +3,6 @@
   "al.codeAnalyzers": [
     "${CodeCop}",
     "${UICop}",
-    "${PerTenantExtensionCop}",
     "${analyzerfolder}BusinessCentral.LinterCop.dll"
   ],
   "al.ruleSetPath": "./.vscode/custom.ruleset.json",

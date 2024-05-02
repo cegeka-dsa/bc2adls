@@ -1,6 +1,10 @@
+namespace Zig.ADLSE;
+
+using System.Reflection;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-table 82562 "ADLSE Field"
+table 11007165 "ADLSE Field"
 {
     Access = Internal;
     DataClassification = CustomerContent;

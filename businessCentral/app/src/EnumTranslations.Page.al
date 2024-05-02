@@ -1,5 +1,7 @@
+namespace Zig.ADLSE;
+
 //A list page that is build on table Enum Translation
-page 82569 "ADLSE Enum Translations"
+page 11007160 "ADLSE Enum Translations"
 {
     PageType = List;
     ApplicationArea = All;

@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82567 ADLSE
+codeunit 11007160 ADLSE
 {
     /// <summary>
     /// This is the main facade of Azure Data Lake Storage Export (ADLSE).
