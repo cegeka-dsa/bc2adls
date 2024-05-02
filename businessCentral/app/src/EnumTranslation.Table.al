@@ -58,7 +58,9 @@ table 11007162 "ADLSE Enum Translation"
         ADLSETable: Record "ADLSE Table";
         ADLSEEnumTranslation: Record "ADLSE Enum Translation";
         ADLSEEnumTranslationLang: Record "ADLSE Enum Translation Lang";
+        ADLSESetupRec: Record "ADLSE Setup";
         RecordField: Record Field;
+        ADLSEExternalEvents: Codeunit "ADLSE External Events";
         ADLSERecordRef: RecordRef;
     begin
         ADLSEEnumTranslation.DeleteAll();
@@ -85,6 +87,8 @@ table 11007162 "ADLSE Enum Translation"
             ADLSETable.Add(ADLSEEnumTranslationLang.RecordId.TableNo);
             ADLSETable.AddAllFields();
         end;
+
+        ADLSEExternalEvents.OnRefreshOptions(ADLSESetupRec);
     end;
 
     local procedure InsertEnums(ADLSERecordRef: RecordRef; FieldRec: Record Field)

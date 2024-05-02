@@ -1,5 +1,3 @@
-namespace Zig.ADLSE;
-
 xmlport 11007160 "BC2ADLS Import/Export"
 {
     Caption = 'BC2ADLS Import/Export';

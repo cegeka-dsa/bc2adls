@@ -112,6 +112,8 @@ codeunit 11007171 "ADLSE Http"
         HeaderKey: Text;
         HeaderValue: Text;
     begin
+        ADLSESetup.GetSingleton();
+
         HttpClient.SetBaseAddress(Url);
         if not AddAuthorization(HttpClient, Response) then
             exit(false);
@@ -168,7 +170,11 @@ codeunit 11007171 "ADLSE Http"
         ADLSESetup: Record "ADLSE Setup";
         Headers: HttpHeaders;
     begin
-        HttpContent.WriteFrom(Body);
+        if (ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Azure Data Lake") or
+        (ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Microsoft Fabric") and (not ContentTypeJson)
+        then
+            HttpContent.WriteFrom(Body);
+
         HttpContent.GetHeaders(Headers);
 
         if ContentTypeJson then begin

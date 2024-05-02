@@ -29,6 +29,7 @@ codeunit 11007173 "ADLSE Session Manager"
     local procedure StartExport(TableID: Integer; ExportWasPending: Boolean; ForceExport: Boolean; EmitTelemetry: Boolean) Started: Boolean
     var
         ADLSETable: Record "ADLSE Table";
+        ADLSESetup: Record "ADLSE Setup";
         ADLSEExecution: Codeunit "ADLSE Execution";
         ADLSEUtil: Codeunit "ADLSE Util";
         CustomDimensions: Dictionary of [Text, Text];
@@ -36,6 +37,13 @@ codeunit 11007173 "ADLSE Session Manager"
     begin
         if ForceExport or DataChangesExist(TableID) then begin
             ADLSETable.Get(TableID);
+
+            ADLSESetup.GetSingleton();
+            if ADLSESetup."Export Company Database Tables" <> '' then
+                if (not ADLSEUtil.IsTablePerCompany(TableID)) then
+                    if (ADLSESetup."Export Company Database Tables" <> CompanyName()) then
+                        exit;
+
             Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Execute", CompanyName(), ADLSETable);
             CustomDimensions.Add('Entity', ADLSEUtil.GetTableCaption(TableID));
             CustomDimensions.Add('ExportWasPending', Format(ExportWasPending));

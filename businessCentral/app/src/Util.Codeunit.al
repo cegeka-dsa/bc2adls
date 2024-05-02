@@ -317,6 +317,7 @@ codeunit 11007177 "ADLSE Util"
 
     procedure CreateCsvHeader(RecordRef: RecordRef; FieldIdList: List of [Integer]) RecordPayload: Text
     var
+        ADLSESetup: Record "ADLSE Setup";
         ADLSECDMUtil: Codeunit "ADLSE CDM Util";
         FieldRef: FieldRef;
         FieldID: Integer;
@@ -337,13 +338,18 @@ codeunit 11007177 "ADLSE Util"
         end;
         if IsTablePerCompany(RecordRef.Number) then
             Payload.Append(StrSubstNo(CommaPrefixedTok, ADLSECDMUtil.GetCompanyFieldName()));
+        ADLSESetup.GetSingleton();
+        if ADLSESetup."Delivered DateTime" then
+            Payload.Append(StrSubstNo(CommaPrefixedTok, ADLSECDMUtil.GetDeliveredDateTimeFieldName()));
         Payload.AppendLine();
         RecordPayload := Payload.ToText();
     end;
 
     procedure CreateCsvPayload(RecordRef: RecordRef; FieldIdList: List of [Integer]; AddHeaders: Boolean) RecordPayload: Text
     var
+        ADLSESetup: Record "ADLSE Setup";
         FieldRef: FieldRef;
+        CurrDateTime: DateTime;
         FieldID: Integer;
         FieldsAdded: Integer;
         FieldTextValue: Text;
@@ -351,6 +357,10 @@ codeunit 11007177 "ADLSE Util"
     begin
         if AddHeaders then
             Payload.Append(CreateCsvHeader(RecordRef, FieldIdList));
+
+        ADLSESetup.GetSingleton();
+        if ADLSESetup."Delivered DateTime" then
+            CurrDateTime := CurrentDateTime();
 
         FieldsAdded := 0;
         foreach FieldID in FieldIdList do begin
@@ -365,6 +375,8 @@ codeunit 11007177 "ADLSE Util"
         end;
         if IsTablePerCompany(RecordRef.Number) then
             Payload.Append(StrSubstNo(CommaPrefixedTok, ConvertStringToText(CompanyName())));
+        if ADLSESetup."Delivered DateTime" then
+            Payload.Append(StrSubstNo(CommaPrefixedTok, ConvertDateTimeToText(CurrDateTime)));
         Payload.AppendLine();
 
         RecordPayload := Payload.ToText();

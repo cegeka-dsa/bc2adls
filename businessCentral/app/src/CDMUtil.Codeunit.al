@@ -9,6 +9,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
     var
         BlankArray: JsonArray;
         CompanyFieldNameLbl: Label '$Company';
+        DeliveredDateTimeFieldNameLbl: Label '$DeliveredDateTime';
         ExistingFieldCannotBeRemovedErr: Label 'The field %1 in the entity %2 is already present in the data lake and cannot be removed.', Comment = '%1: field name, %2: entity name';
         FieldDataTypeCannotBeChangedErr: Label 'The data type for the field %1 in the entity %2 cannot be changed.', Comment = '%1: field name, %2: entity name';
         RepresentsTableTxt: Label 'Represents the table %1', Comment = '%1: table caption';
@@ -114,6 +115,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
 
     local procedure CreateAttributes(TableID: Integer; FieldIdList: List of [Integer]) Result: JsonArray;
     var
+        ADLSESetup: Record "ADLSE Setup";
         ADLSEUtil: Codeunit "ADLSE Util";
         RecordRef: RecordRef;
         FieldRef: FieldRef;
@@ -130,12 +132,19 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
                     ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef.Name, FieldRef.Number),
                     DataFormat,
                     FieldRef.Name,
-                    AppliedTraits));
+                    AppliedTraits,
+                    FieldRef.Length));
+        end;
+        ADLSESetup.GetSingleton();
+        if ADLSESetup."Delivered DateTime" then begin
+            GetCDMAttributeDetails(FieldType::DateTime, DataFormat, AppliedTraits);
+            Result.Add(
+                CreateAttributeJson(GetDeliveredDateTimeFieldName(), DataFormat, GetDeliveredDateTimeFieldName(), AppliedTraits, FieldRef.Length));
         end;
         if ADLSEUtil.IsTablePerCompany(TableID) then begin
             GetCDMAttributeDetails(FieldType::Text, DataFormat, AppliedTraits);
             Result.Add(
-                CreateAttributeJson(GetCompanyFieldName(), DataFormat, GetCompanyFieldName(), AppliedTraits));
+                CreateAttributeJson(GetCompanyFieldName(), DataFormat, GetCompanyFieldName(), AppliedTraits, FieldRef.Length));
         end;
     end;
 
@@ -144,12 +153,18 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         exit(CompanyFieldNameLbl);
     end;
 
-    local procedure CreateAttributeJson(Name: Text; DataFormat: Text; DisplayName: Text; AppliedTraits: JsonArray) Attribute: JsonObject
+    procedure GetDeliveredDateTimeFieldName(): Text
+    begin
+        exit(DeliveredDateTimeFieldNameLbl);
+    end;
+
+    local procedure CreateAttributeJson(Name: Text; DataFormat: Text; DisplayName: Text; AppliedTraits: JsonArray; MaximumLength: Integer) Attribute: JsonObject
     begin
         Attribute.Add('name', Name);
         Attribute.Add('dataFormat', DataFormat);
         Attribute.Add('appliedTraits', AppliedTraits);
         Attribute.Add('displayName', DisplayName);
+        Attribute.Add('maximumLength', MaximumLength);
     end;
 
     procedure CheckChangeInEntities(EntityContentOld: JsonObject; EntityContentNew: JsonObject; EntityName: Text)

@@ -61,6 +61,8 @@ codeunit 11007167 "ADLSE Execution"
         Message(ExportStartedTxt, Started, Counter);
         if EmitTelemetry then
             Log('ADLSE-001', StrSubstNo(ExportStartedTxt, Started, Counter), Verbosity::Normal);
+
+        ADLSEExternalEvents.OnAllExportIsFinished(ADLSESetupRec);
     end;
 
     internal procedure StopExport()
