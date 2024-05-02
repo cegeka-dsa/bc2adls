@@ -28,7 +28,12 @@ table 82561 "ADLSE Table"
             trigger OnValidate()
             var
                 ADLSEExternalEvents: Codeunit "ADLSE External Events";
+                ADLSETableErr: Label 'The ADLSE Table table cannot be disabled.';
             begin
+                if Rec."Table ID" = Database::"ADLSE Table" then
+                    if xRec.Enabled = false then
+                        Error(ADLSETableErr);
+
                 if Rec.Enabled then
                     CheckExportingOnlyValidFields();
 
@@ -97,7 +102,8 @@ table 82561 "ADLSE Table"
         TableNotNormalErr: Label 'Table %1 is not a normal table.', Comment = '%1: caption of table';
         TableExportingDataErr: Label 'Data is being executed for table %1. Please wait for the export to finish before making changes.', Comment = '%1: table caption';
         TableCannotBeExportedErr: Label 'The table %1 cannot be exported because of the following error. \%2', Comment = '%1: Table ID, %2: error text';
-        TablesResetTxt: Label '%1 table(s) were reset.', Comment = '%1 = number of tables that were reset';
+        TablesResetTxt: Label '%1 table(s) were reset %2', Comment = '%1 = number of tables that were reset, %2 = message if tables are exported';
+        TableResetExportedTxt: Label 'and are exported to the lakehouse. Please run the notebook first.';
 
     procedure FieldsChosen(): Integer
     var
@@ -169,12 +175,16 @@ table 82561 "ADLSE Table"
     var
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
+        ADLSESetup: Record "ADLSE Setup";
+        ADLSECommunication: Codeunit "ADLSE Communication";
         Counter: Integer;
     begin
         if Rec.FindSet(true) then
             repeat
-                Rec.Enabled := true;
-                Rec.Modify();
+                if not Rec.Enabled then begin
+                    Rec.Enabled := true;
+                    Rec.Modify();
+                end;
 
                 ADLSETableLastTimestamp.SaveUpdatedLastTimestamp(Rec."Table ID", 0);
                 ADLSETableLastTimestamp.SaveDeletedLastEntryNo(Rec."Table ID", 0);
@@ -182,11 +192,18 @@ table 82561 "ADLSE Table"
                 ADLSEDeletedRecord.SetRange("Table ID", Rec."Table ID");
                 ADLSEDeletedRecord.DeleteAll();
 
+                ADLSESetup.GetSingleton();
+                if (ADLSESetup."Delete Table") and (ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Microsoft Fabric") then
+                    ADLSECommunication.ResetTableExport(Rec."Table ID");
+
                 OnAfterResetSelected(Rec);
 
                 Counter += 1;
             until Rec.Next() = 0;
-        Message(TablesResetTxt, Counter);
+        if (ADLSESetup."Delete Table") and (ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Microsoft Fabric") then
+            Message(TablesResetTxt, Counter, TableResetExportedTxt)
+        else
+            Message(TablesResetTxt, Counter, '.');
     end;
 
     local procedure CheckExportingOnlyValidFields()
