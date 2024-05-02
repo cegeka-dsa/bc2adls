@@ -1,4 +1,6 @@
-xmlport 82561 "BC2ADLS Export"
+namespace Zig.ADLSE;
+
+xmlport 11007161 "BC2ADLS Export"
 {
     Caption = 'BC2ADLS Export';
     UseRequestPage = false;
