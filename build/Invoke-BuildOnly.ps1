@@ -49,7 +49,7 @@ if ($SignApp) {
      -TenantId $TenantId `
      -FilesToSign $TargetAppFile `
      -Description $Description `
-     -DescriptionUrl $DescriptionUrl `
+     -DescriptionUrl $DescriptionUrl -Verbose
 }
 
 $AppPackageName = Split-Path $TargetAppFile -Leaf
