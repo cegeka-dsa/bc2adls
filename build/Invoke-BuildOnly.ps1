@@ -6,7 +6,17 @@ param(
     [Parameter(Mandatory = $false)][string] $BaseAppModifiedName = "BaseApplicationModified",
     [Parameter(Mandatory = $false)][string] $BuildId = $env:BUILD_BUILDID,
     [Parameter(Mandatory = $false)][string] $ContainerName = $env:CONTAINERNAME,
-    [Parameter(Mandatory = $false)][string] $ProjectFolder = $env:ProjectFolder
+    [Parameter(Mandatory = $false)][string] $ProjectFolder = $env:ProjectFolder,
+    [Parameter(Mandatory = $false)][boolean] $SignApp = [System.Convert]::ToBoolean($env:SIGNAPP),
+    # Static parameters
+    [Parameter(Mandatory = $false)][string] $SecretKeyVaultName = "DE-KeyVault-OAuth",
+    [Parameter(Mandatory = $false)][string] $CertificateKeyVaultSecretName = "CodeSign",
+    [Parameter(Mandatory = $false)][string] $CertificateName = "CodeSignCertificate",
+    [Parameter(Mandatory = $false)][string] $CertificateKeyVaultName = "CodeSignERP",
+    [Parameter(Mandatory = $false)][string] $TenantId = "402b1b00-ddb0-4bc7-b61c-50afb351bb17",
+    [Parameter(Mandatory = $false)][string] $ClientId = "0ff06a49-7d08-4578-99f6-64b5089293ad",
+    [Parameter(Mandatory = $false)][string] $Description = "Signed with Zig ERP Builds for AppSource deployment.",
+    [Parameter(Mandatory = $false)][string] $DescriptionUrl = "https:\\www.zig.nl"
 )
 #Import-Module "C:\Projects\Git\DevOps.PSModules\Modules\cdsa.build.al\cdsa.build.al.psm1" -Force
 #$ProjectFolder = (Get-Location).Path + "\BusinessCentral"
