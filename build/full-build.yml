@@ -96,6 +96,12 @@ jobs:
     env:
       TOKEN: $(System.AccessToken)
 
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk'
+    inputs:
+      version: 8.x
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
   - task: AzurePowerShell@4
     displayName: 'Build and sign the apps'
     inputs:
