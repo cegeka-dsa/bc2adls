@@ -123,9 +123,7 @@ jobs:
     displayName: Copy build artifacts
     inputs:
       SourceFolder: $(ProjectFolder)
-      Contents: |
-        'app/*.app'
-        'test/*.app'
+      Contents: Zig*.app
       TargetFolder: $(PublishFolder)
       flattenFolders: true
 
