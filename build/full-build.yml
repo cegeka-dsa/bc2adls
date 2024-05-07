@@ -98,7 +98,7 @@ jobs:
       TOKEN: $(System.AccessToken)
 
   - task: AzurePowerShell@4
-    displayName: 'Build apps'
+    displayName: 'Build and sign the apps'
     inputs:
       azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
       ScriptType: 'FilePath'
