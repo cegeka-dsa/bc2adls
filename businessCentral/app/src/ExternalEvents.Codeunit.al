@@ -124,7 +124,7 @@ codeunit 11007168 "ADLSE External Events"
     var
         Url: Text[250];
         WebClientUrl: Text[250];
-        ADLSEFieldApiUrlTok: Label 'bc2adlsTeamMicrosoft/bc2adls/v1.0/companies(%1)/adlseTables(%2)', Locked = true;
+        ADLSEFieldApiUrlTok2: Label 'bc2adlsTeamMicrosoft/bc2adls/v1.0/companies(%1)/adlseTables(%2)', Locked = true;
     begin
         Url := ADLSEExternalEventsHelper.CreateLink(ADLSEFieldApiUrlTok, ADLSETable.SystemId);
         WebClientUrl := CopyStr(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"ADLSE Setup", ADLSESetup), 1, MaxStrLen(WebClientUrl));
