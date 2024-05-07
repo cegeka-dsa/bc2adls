@@ -23,6 +23,7 @@ variables:
   StorageAccount: '<Read from build-params in ERP AL repo>'
   StorageContainer: '<Read from build-params in ERP AL repo>'
   PublishFolder: $(System.ArtifactsDirectory)\Apps
+  SignApp: true
 
 parameters:
 - name: ERPBranchName
