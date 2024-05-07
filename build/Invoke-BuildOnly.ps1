@@ -40,7 +40,7 @@ foreach($AppFolder in $SortedApps) {
 }
 if ($SignApp) {
     New-cdsaAzureDevOpsSection -Message "Signing App $TargetAppFile"
-    $CertificateKeyVaultSecret = (Get-AzKeyVaultSecret -VaultName $SecretKeyVaultName -Name $CertificateKeyVaultSecretName).SecretValue
+    $CertificateKeyVaultSecret = ConvertTo-SecureString  (Get-AzKeyVaultSecret -VaultName $SecretKeyVaultName -Name $CertificateKeyVaultSecretName  -AsPlainText)
     Write-Verbose "$CertificateKeyVaultSecret" -Verbose
     Invoke-cdsaALAppSign -KeyVaultName $CertificateKeyVaultName `
      -CertificateName $CertificateName `
