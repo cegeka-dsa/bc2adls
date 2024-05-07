@@ -1,6 +1,6 @@
 {
   "id": "f50ed17c-be40-4d00-ad13-2e5132038664",
-  "name": "Azure Data Lake Storage Export",
+  "name": "Zig365 Insights Connector",
   "publisher": "Zig",
   "brief": "Sync data from Business Central to the Azure storage",
   "description": "Exports data in chosen tables to the Azure Data Lake and keeps it in sync by incremental updates. Before you use this tool, please read the SUPPORT.md file at https://github.com/microsoft/bc2adls.",
@@ -37,6 +37,7 @@
       "id": "03486619-1622-4261-ae0e-b366b3c96e3c"
     }
   ],
+  "features": ["TranslationFile"],
   "target": "Cloud",
   "runtime": "12.0"
 }
