@@ -15,7 +15,6 @@ variables:
   ContainerName: 'C$(Build.BuildId)'
   RepoLocalPath: '$(Build.Repository.LocalPath)\bc2adls'
   LicenseFile: '$(System.ArtifactsDirectory)\dev.bclicense'
-  DevOpsBuildsBranch: master
   ProjectFolder: $(RepoLocalPath)\businesscentral
   BuildScriptPath: '$(RepoLocalPath)\Build'
   TargetAppFile: '<Set in script invoke-buildonly.ps1>'
