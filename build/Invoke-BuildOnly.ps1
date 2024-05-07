@@ -28,15 +28,6 @@ foreach($AppFolder in $SortedApps) {
         $TargetAppFile = $AppFilename
     }
 }
-<#Start-cdsaCompileALProject -BaseAppName $BaseAppName `
-    -BaseAppModifiedName $BaseAppModifiedName `
-    -ContainerName $ContainerName `
-    -ProjectFolder $ProjectFolder `
-    -AppsToCompile $SortedApps `
-    -OutputFolder $ProjectFolder `
-    -OutputCompilerLogs `
-    -Verbose
-#>
 
 $AppPackageName = Split-Path $TargetAppFile -Leaf
 $AppPackageNameParts=$AppPackageName.Split("_")
