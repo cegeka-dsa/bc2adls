@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-permissionset 82562 "ADLSE - Track Delete"
+permissionset 11007163 "ADLSE - Track Delete"
 {
     /// <summary>
     /// The permission set used to register the deletion of any record, so that the information of it being deleted can be conveyed to the Azure data lake.

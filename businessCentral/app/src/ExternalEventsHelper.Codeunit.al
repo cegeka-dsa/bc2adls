@@ -1,4 +1,8 @@
-codeunit 82576 "ADLSE External Events Helper"
+namespace Zig.ADLSE;
+
+using System.Environment;
+
+codeunit 11007169 "ADLSE External Events Helper"
 {
     Access = Internal;
     procedure CreateLink(url: Text; Id: Guid): Text[250]

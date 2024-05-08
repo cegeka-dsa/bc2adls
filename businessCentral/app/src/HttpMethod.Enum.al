@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-enum 82561 "ADLSE Http Method"
+enum 11007161 "ADLSE Http Method"
 {
     Access = Internal;
     Extensible = false;

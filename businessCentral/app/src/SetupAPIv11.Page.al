@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-page 82568 "ADLSE Setup API v11"
+page 11007167 "ADLSE Setup API v11"
 {
     PageType = API;
     APIPublisher = 'bc2adlsTeamMicrosoft';

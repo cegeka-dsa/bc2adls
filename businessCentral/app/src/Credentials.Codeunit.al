@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82565 "ADLSE Credentials"
+codeunit 11007164 "ADLSE Credentials"
 {
     Access = Internal;
     // The max sizes of the fields are determined based on the recommendations listed at 

@@ -1,4 +1,6 @@
-enum 82563 "ADLSE Storage Type"
+namespace Zig.ADLSE;
+
+enum 11007164 "ADLSE Storage Type"
 {
     Access = Internal;
     Extensible = false;

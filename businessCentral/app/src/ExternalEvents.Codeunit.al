@@ -1,6 +1,9 @@
+namespace Zig.ADLSE;
+
+using System.Integration;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82574 "ADLSE External Events"
+codeunit 11007168 "ADLSE External Events"
 {
     SingleInstance = true;
 
@@ -121,9 +124,9 @@ codeunit 82574 "ADLSE External Events"
     var
         Url: Text[250];
         WebClientUrl: Text[250];
-        ADLSEFieldApiUrlTok: Label 'bc2adlsTeamMicrosoft/bc2adls/v1.0/companies(%1)/adlseTables(%2)', Locked = true;
+        ADLSEFieldApiUrlTok2: Label 'bc2adlsTeamMicrosoft/bc2adls/v1.0/companies(%1)/adlseTables(%2)', Locked = true;
     begin
-        Url := ADLSEExternalEventsHelper.CreateLink(ADLSEFieldApiUrlTok, ADLSETable.SystemId);
+        Url := ADLSEExternalEventsHelper.CreateLink(ADLSEFieldApiUrlTok2, ADLSETable.SystemId);
         WebClientUrl := CopyStr(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"ADLSE Setup", ADLSESetup), 1, MaxStrLen(WebClientUrl));
         MyBusinessOnExportFinishedv2(ADLSETable.SystemId, ADLSESetup."Storage Type", ADLSETable."Table ID", Url, WebClientUrl);
     end;

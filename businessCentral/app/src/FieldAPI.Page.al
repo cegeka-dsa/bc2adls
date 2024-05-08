@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 // Create an API page for table and field
 
-page 82567 "ADLSE Field API"
+page 11007162 "ADLSE Field API"
 {
     PageType = API;
     APIPublisher = 'bc2adlsTeamMicrosoft';

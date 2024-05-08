@@ -1,4 +1,8 @@
-enumextension 82560 "ADLSE EventCategory" extends EventCategory
+namespace Zig.ADLSE;
+
+using System.Integration;
+
+enumextension 11007160 "ADLSE EventCategory" extends EventCategory
 {
     value(82560; ADLSE)
     {

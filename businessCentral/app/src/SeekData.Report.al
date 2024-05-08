@@ -1,6 +1,10 @@
+namespace Zig.ADLSE;
+
+using System.Utilities;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-report 82560 "ADLSE Seek Data"
+report 11007160 "ADLSE Seek Data"
 {
     ProcessingOnly = true;
     DataAccessIntent = ReadOnly;

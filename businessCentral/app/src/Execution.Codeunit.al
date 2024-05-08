@@ -1,6 +1,12 @@
+namespace Zig.ADLSE;
+
+using System.Environment;
+using System.Reflection;
+using System.Threading;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82569 "ADLSE Execution"
+codeunit 11007167 "ADLSE Execution"
 {
     trigger OnRun()
     begin

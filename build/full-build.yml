@@ -15,13 +15,14 @@ variables:
   ContainerName: 'C$(Build.BuildId)'
   RepoLocalPath: '$(Build.Repository.LocalPath)\bc2adls'
   LicenseFile: '$(System.ArtifactsDirectory)\dev.bclicense'
-  DevOpsBuildsBranch: master
-  ProjectFolder: businesscentral
+  ProjectFolder: $(RepoLocalPath)\businesscentral
   BuildScriptPath: '$(RepoLocalPath)\Build'
   TargetAppFile: '<Set in script invoke-buildonly.ps1>'
   AppVersion: '<Set in script invoke-buildonly.ps1>'
   StorageAccount: '<Read from build-params in ERP AL repo>'
   StorageContainer: '<Read from build-params in ERP AL repo>'
+  PublishFolder: $(System.ArtifactsDirectory)\Apps
+  SignApp: true
 
 parameters:
 - name: ERPBranchName
@@ -91,17 +92,23 @@ jobs:
     displayName: Create container
     inputs:
       filePath: '$(BuildScriptPath)\New-BCContainer.ps1'
-      arguments: '-ProjectFolder "$(RepoLocalPath)/$(ProjectFolder)" -LicenseFile "$(LicenseFile)"'
+      arguments: '-ProjectFolder "$(ProjectFolder)" -LicenseFile "$(LicenseFile)"'
     env:
       TOKEN: $(System.AccessToken)
 
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk'
+    inputs:
+      version: 8.x
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
   - task: AzurePowerShell@4
-    displayName: 'Build apps'
+    displayName: 'Build and sign the apps'
     inputs:
       azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
       ScriptType: 'FilePath'
       ScriptPath: '$(BuildScriptPath)\Invoke-BuildOnly.ps1'
-      ScriptArguments: '-ProjectFolder "$(RepoLocalPath)\$(ProjectFolder)" -Verbose'
+      ScriptArguments: '-ProjectFolder "$(ProjectFolder)" -Verbose'
       azurePowerShellVersion: 'LatestVersion'
     env:
       TOKEN: $(System.AccessToken)
@@ -118,11 +125,26 @@ jobs:
       TOKEN: $(System.AccessToken)
     condition: and( succeeded(), eq('${{parameters.PublishApp}}','true'))
 
+  - task: CopyFiles@2
+    displayName: Copy build artifacts
+    inputs:
+      SourceFolder: $(ProjectFolder)
+      Contents: Zig*.app
+      TargetFolder: $(PublishFolder)
+      flattenFolders: true
+
   - task: PublishBuildArtifacts@1
     displayName: Publish the App
     inputs:
-      PathtoPublish: $(TargetAppFile)
-      ArtifactName: 'App' 
+      PathtoPublish: $(PublishFolder)
+      ArtifactName: 'Apps'
+      publishLocation: 'Container'
+
+  - task: PublishBuildArtifacts@1
+    displayName: Publish the App
+    inputs:
+      PathtoPublish: $(ProjectFolder)
+      ArtifactName: 'Apps' 
       publishLocation: 'Container'
 
   - task: andremarques023.DiagnosticTasks.DiagnosticTasks.AddBuildTag.AddBuildTag@1

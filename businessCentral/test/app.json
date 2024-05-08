@@ -1,7 +1,7 @@
 {
   "id": "03486619-1622-4261-ae0e-b366b3c96e3c",
   "name": "Azure Data Lake Storage Export Tests",
-  "publisher": "The bc2adls team",
+  "publisher": "Zig",
   "version": "23.23.0.0",
   "brief": "Tests for Azure Data Lake Storage Export",
   "description": "Tests for Azure Data Lake Storage Export",

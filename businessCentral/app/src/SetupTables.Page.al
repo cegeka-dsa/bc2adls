@@ -1,6 +1,10 @@
+namespace Zig.ADLSE;
+
+using System.Reflection;
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-page 82561 "ADLSE Setup Tables"
+page 11007169 "ADLSE Setup Tables"
 {
     Caption = 'Tables';
     LinksAllowed = false;
@@ -184,7 +188,7 @@ page 82561 "ADLSE Setup Tables"
                 var
                     ADLSETable: Record "ADLSE Table";
                 begin
-                    XmlPort.Run(XmlPort::"BC2ADLS Import", false, true, ADLSETable);
+                    XmlPort.Run(XmlPort::"BC2ADLS Import/Export", false, true, ADLSETable);
                     CurrPage.Update(false);
                 end;
             }
