@@ -140,13 +140,6 @@ jobs:
       ArtifactName: 'Apps'
       publishLocation: 'Container'
 
-  - task: PublishBuildArtifacts@1
-    displayName: Publish the App
-    inputs:
-      PathtoPublish: $(ProjectFolder)
-      ArtifactName: 'Apps' 
-      publishLocation: 'Container'
-
   - task: andremarques023.DiagnosticTasks.DiagnosticTasks.AddBuildTag.AddBuildTag@1
     displayName: 'Add build tag with version'
     inputs:
