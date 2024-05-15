@@ -54,6 +54,12 @@ if ($SignApp) {
      -DescriptionUrl $DescriptionUrl -Verbose
 }
 
+New-cdsaAzureDevOpsSection -Message "Publish the main app $TargetAppFile"
+Publish-NavContainerApp -Container $ContainerName `
+    -appFile $TargetAppFile `
+    -skipVerification `
+    -sync
+
 New-cdsaAzureDevOpsSection -Message "Create AppSource config file"
 New-cdsaAppSourceConfig -Container $ContainerName `
     -AppSourceConfigPath $AppSourceConfigPath `
