@@ -8,6 +8,8 @@ param(
     [Parameter(Mandatory = $false)][string] $ContainerName = $env:CONTAINERNAME,
     [Parameter(Mandatory = $false)][string] $ProjectFolder = $env:ProjectFolder,
     [Parameter(Mandatory = $false)][boolean] $SignApp = [System.Convert]::ToBoolean($env:SIGNAPP),
+    [Parameter(Mandatory = $false)][boolean] $AppSourceConfigPath = $ENV:APPSOURCECONFIGPATH,
+    [Parameter(Mandatory = $false)][boolean] $AppSourceConfigOutputPath = $ENV:APPSOURCECONFIGOUTPUTPATH,
     # Static parameters
     [Parameter(Mandatory = $false)][string] $SecretKeyVaultName = "DE-KeyVault-OAuth",
     [Parameter(Mandatory = $false)][string] $CertificateKeyVaultSecretName = "CodeSign",
@@ -51,6 +53,12 @@ if ($SignApp) {
      -Description $Description `
      -DescriptionUrl $DescriptionUrl -Verbose
 }
+
+New-cdsaAzureDevOpsSection -Message "Create AppSource config file"
+New-cdsaAppSourceConfig -Container $ContainerName `
+    -AppSourceConfigPath $AppSourceConfigPath `
+    -OutputPath $AppSourceConfigOutputPath `
+    -Verbose
 
 $AppPackageName = Split-Path $TargetAppFile -Leaf
 $AppPackageNameParts=$AppPackageName.Split("_")

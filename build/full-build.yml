@@ -23,6 +23,8 @@ variables:
   StorageContainer: '<Read from build-params in ERP AL repo>'
   PublishFolder: $(System.ArtifactsDirectory)\Apps
   SignApp: true
+  AppSourceConfigPath: '$(RepoLocalPath)\build\AppSourceConfig.json'
+  AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\AppSourceConfig.json'
 
 parameters:
 - name: ERPBranchName
@@ -130,6 +132,7 @@ jobs:
     inputs:
       SourceFolder: $(ProjectFolder)
       Contents: Zig*.app
+                AppSourceConfig.json
       TargetFolder: $(PublishFolder)
       flattenFolders: true
 
