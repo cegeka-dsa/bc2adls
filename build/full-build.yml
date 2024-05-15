@@ -131,7 +131,8 @@ jobs:
     displayName: Copy build artifacts
     inputs:
       SourceFolder: $(ProjectFolder)
-      Contents: Zig*.app
+      Contents: |
+                Zig*.app
                 AppSourceConfig.json
       TargetFolder: $(PublishFolder)
       flattenFolders: true
