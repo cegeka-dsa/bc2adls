@@ -25,6 +25,8 @@ variables:
   SignApp: true
   AppSourceConfigPath: '$(RepoLocalPath)\build\AppSourceConfig.json'
   AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\AppSourceConfig.json'
+  ForceAppSourceValidation: ${{parameters.ForceAppSourceValidation}}
+  ERPBranchName: ${{parameters.ERPBranchName}}
 
 parameters:
 - name: ERPBranchName
@@ -34,6 +36,11 @@ parameters:
 
 - name: PublishApp
   displayName: Force push app to storage container
+  type: boolean
+  default: false
+
+- name: ForceAppSourceValidation
+  displayName: Force AppSource validation
   type: boolean
   default: false
 
