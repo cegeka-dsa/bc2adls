@@ -20,8 +20,14 @@ param(
     [Parameter(Mandatory = $false)][string] $Description = "Signed with Zig ERP Builds for AppSource deployment.",
     [Parameter(Mandatory = $false)][string] $DescriptionUrl = "https:\\www.zig.nl"
 )
-#Import-Module "C:\Projects\Git\DevOps.PSModules\Modules\cdsa.build.al\cdsa.build.al.psm1" -Force
-#$ProjectFolder = (Get-Location).Path + "\BusinessCentral"
+New-cdsaAzureDevOpsSection -Message "Set version numbers"
+$ApplicationVersion = Set-cdsaApplicationVersion -ContainerName $ContainerName `
+    -ProjectFolder $ProjectFolder `
+    -BuildId $BuildId `
+    -ErrorAction Stop `
+    -TakeMinorVersionFromAppJson `
+    -Verbose
+
 New-cdsaAzureDevOpsSection -Message "Get the list of Apps that need to compile"
 $SortedApps = Get-cdsaAppsListToCompile -ProjectFolder $ProjectFolder -Verbose
 
