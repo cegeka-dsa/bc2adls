@@ -21,7 +21,7 @@ if (($BuildBranchName -in ("main","master")) -or $ForceAppSourceValidation) {
     New-cdsaAzureDevOpsSection -Message "Start 'AppSource Validation' build"
     Start-cdsaAzureDevOpsBuild -Context $Context `
         -BuildDefinitionId $AppSourceBuildDefinitionID `
-        -SourceBranch $ERPBranchName `
+        -SourceBranch "cosminahristofor_master_217878" `
         -QueryParameters @{ "api-version" = '5.1' } `
         -BuildParameters @{ "ERPBuildId" = $BuildId; "ERPALFullBuildDefinitionID" = $CurrentBuildDefinition } `
         -Verbose
