@@ -45,7 +45,7 @@ parameters:
   type: boolean
   default: false
 
-name: ERPValidationBranch
+- name: ERPValidationBranch
   displayName: ERP AL Branch to use for validation build
   type: string
   default: 'master'
