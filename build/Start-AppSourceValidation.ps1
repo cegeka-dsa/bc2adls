@@ -12,7 +12,6 @@ param(
     # Static parameters
     [Parameter(Mandatory = $false)][string] $AppSourceBuildDefinitionID = 529
 )
-
 $Context = New-cdsaAzureDevOpsAPIContext -Organization 'cegekadsa' `
     -Project 'DynamicsEmpire' `
     -PersonalAccessToken $env:TOKEN
@@ -25,7 +24,7 @@ if (($BuildBranchName -in ("main","master")) -or $ForceAppSourceValidation) {
         -QueryParameters @{ "api-version" = '5.1' } `
         -BuildParameters @{ "ERPBuildId" = $BuildId; "ERPALFullBuildDefinitionID" = $CurrentBuildDefinition } `
         -Verbose
+    New-cdsaAzureDevOpsSection -EndSection
 } else {
     Write-Verbose "No appsource validation - Branchname: $BuildBranchName and ForceAppSourceValidation: $ForceAppSourceValidation"
 }
-New-cdsaAzureDevOpsSection -EndSection
