@@ -123,6 +123,17 @@ jobs:
       TOKEN: $(System.AccessToken)
 
   - task: AzurePowerShell@4
+    displayName: 'Trigger AppSource validation build'
+    inputs:
+      azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
+      ScriptType: 'FilePath'
+      ScriptPath: '$(BuildScriptPath)\Invoke-AppSourceValidation.ps1'
+      ScriptArguments: '-Verbose'
+      azurePowerShellVersion: 'LatestVersion'
+    env:
+      TOKEN: $(System.AccessToken)
+
+  - task: AzurePowerShell@4
     displayName: 'Publish to Azure BLOB Storage'
     inputs:
       azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
