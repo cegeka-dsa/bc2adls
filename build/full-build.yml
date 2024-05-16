@@ -27,10 +27,11 @@ variables:
   AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\AppSourceConfig.json'
   ForceAppSourceValidation: ${{parameters.ForceAppSourceValidation}}
   ERPBranchName: ${{parameters.ERPBranchName}}
+  ERPValidationBranchName: ${{parameters.ERPValidationBranchName}}
 
 parameters:
 - name: ERPBranchName
-  displayName: ERP AL Branch
+  displayName: ERP Branch for backup
   type: string
   default: 'master'
 
@@ -43,6 +44,11 @@ parameters:
   displayName: Force AppSource validation
   type: boolean
   default: false
+
+name: ERPValidationBranch
+  displayName: ERP AL Branch to use for validation build
+  type: string
+  default: 'master'
 
 jobs:
 - job: Build
@@ -156,7 +162,7 @@ jobs:
     inputs:
       azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
       ScriptType: 'FilePath'
-      ScriptPath: '$(BuildScriptPath)\Invoke-AppSourceValidation.ps1'
+      ScriptPath: '$(BuildScriptPath)\Start-AppSourceValidation.ps1'
       ScriptArguments: '-Verbose'
       azurePowerShellVersion: 'LatestVersion'
     env:

@@ -5,7 +5,7 @@
 param(
     #ENV Variables
     [Parameter(Mandatory = $false)][string] $BuildId = $env:BUILD_BUILDID,
-    [Parameter(Mandatory = $false)][string] $ERPBranchName = $ENV:ERPBranchName,
+    [Parameter(Mandatory = $false)][string] $ERPValidationBranch = $ENV:ERPVALIDATIONBRANCHNAME,
     [Parameter(Mandatory = $false)][boolean] $ForceAppSourceValidation = [System.Convert]::ToBoolean($env:FORCEAPPSOURCEVALIDATION),
     [Parameter(Mandatory = $false)][string] $BuildBranchName = $env:BUILD_SOURCEBRANCHNAME,
     [Parameter(Mandatory = $false)][string] $CurrentBuildDefinition = $env:SYSTEM_DEFINITIONID,
@@ -21,7 +21,7 @@ if (($BuildBranchName -in ("main","master")) -or $ForceAppSourceValidation) {
     New-cdsaAzureDevOpsSection -Message "Start 'AppSource Validation' build"
     Start-cdsaAzureDevOpsBuild -Context $Context `
         -BuildDefinitionId $AppSourceBuildDefinitionID `
-        -SourceBranch "cosminahristofor_master_217878" `
+        -SourceBranch $ERPValidationBranch `
         -QueryParameters @{ "api-version" = '5.1' } `
         -BuildParameters @{ "ERPBuildId" = $BuildId; "ERPALFullBuildDefinitionID" = $CurrentBuildDefinition } `
         -Verbose
