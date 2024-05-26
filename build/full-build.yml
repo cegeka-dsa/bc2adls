@@ -24,7 +24,7 @@ variables:
   PublishFolder: $(System.ArtifactsDirectory)\Apps
   SignApp: true
   AppSourceConfigPath: '$(RepoLocalPath)\build\AppSourceConfig.json'
-  AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\AppSourceConfig.json'
+  AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\OfferingAppConfig.json'
   ForceAppSourceValidation: ${{parameters.ForceAppSourceValidation}}
   ERPBranchName: ${{parameters.ERPBranchName}}
   ERPValidationBranchName: ${{parameters.ERPValidationBranchName}}
