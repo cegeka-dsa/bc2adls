@@ -146,7 +146,7 @@ jobs:
       SourceFolder: $(ProjectFolder)
       Contents: |
                 Zig*.app
-                AppSourceConfig.json
+                OfferingAppConfig.json
       TargetFolder: $(PublishFolder)
       flattenFolders: true
 
