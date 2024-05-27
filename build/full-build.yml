@@ -24,11 +24,14 @@ variables:
   PublishFolder: $(System.ArtifactsDirectory)\Apps
   SignApp: true
   AppSourceConfigPath: '$(RepoLocalPath)\build\AppSourceConfig.json'
-  AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\AppSourceConfig.json'
+  AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\OfferingAppConfig.json'
+  ForceAppSourceValidation: ${{parameters.ForceAppSourceValidation}}
+  ERPBranchName: ${{parameters.ERPBranchName}}
+  ERPValidationBranchName: ${{parameters.ERPValidationBranchName}}
 
 parameters:
 - name: ERPBranchName
-  displayName: ERP AL Branch
+  displayName: ERP Branch for backup
   type: string
   default: 'master'
 
@@ -36,6 +39,16 @@ parameters:
   displayName: Force push app to storage container
   type: boolean
   default: false
+
+- name: ForceAppSourceValidation
+  displayName: Force AppSource validation
+  type: boolean
+  default: false
+
+- name: ERPValidationBranchName
+  displayName: ERP AL Branch to use for validation build
+  type: string
+  default: 'master'
 
 jobs:
 - job: Build
@@ -133,7 +146,7 @@ jobs:
       SourceFolder: $(ProjectFolder)
       Contents: |
                 Zig*.app
-                AppSourceConfig.json
+                OfferingAppConfig.json
       TargetFolder: $(PublishFolder)
       flattenFolders: true
 
@@ -143,6 +156,18 @@ jobs:
       PathtoPublish: $(PublishFolder)
       ArtifactName: 'Apps'
       publishLocation: 'Container'
+
+  - task: AzurePowerShell@4
+    displayName: 'Trigger AppSource validation build'
+    inputs:
+      azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
+      ScriptType: 'FilePath'
+      ScriptPath: '$(BuildScriptPath)\Start-AppSourceValidation.ps1'
+      ScriptArguments: '-Verbose'
+      azurePowerShellVersion: 'LatestVersion'
+    env:
+      TOKEN: $(System.AccessToken)
+
 
   - task: andremarques023.DiagnosticTasks.DiagnosticTasks.AddBuildTag.AddBuildTag@1
     displayName: 'Add build tag with version'
