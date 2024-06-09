@@ -65,15 +65,15 @@ jobs:
   - checkout: self
     clean: true
 
-  - checkout: git://DynamicsEmpire/_git/DevOps.Builds@refs/heads/$(DevOpsBuildsBranch)
-    clean: false
+  - checkout: git://DynamicsEmpire/_git/ERP.Builds@refs/heads/$(ERPBuildsBranch)
+    clean: true
 
   - task: AzurePowerShell@4
     displayName: 'Load pipeline modules'
     inputs:
       azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
       ScriptType: 'FilePath'
-      ScriptPath: '$(Build.Repository.LocalPath)/DevOps.Builds/common/Install-cdsaPipelineModule.ps1'
+      ScriptPath: '$(Build.Repository.LocalPath)/ERP.Builds/common/Install-cdsaPipelineModule.ps1'
       ScriptArguments: '-ModuleName @("cdsa.build.al", "cdsa.devops", "bccontainerhelper") -Verbose'
       azurePowerShellVersion: 'LatestVersion'
     env:
