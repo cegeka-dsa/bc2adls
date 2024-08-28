@@ -59,6 +59,12 @@ if ($SignApp) {
      -DescriptionUrl $DescriptionUrl -Verbose
 }
 
+New-cdsaAzureDevOpsSection -Message "Make sure the main app doesnt exist in the container"
+$Apps = Get-NavContainerAppInfo -containerName $ContainerName 
+foreach($App in $Apps|Where-Object {$_.appId -eq "f50ed17c-be40-4d00-ad13-2e5132038664"}) {
+    UnPublish-NavContainerApp -containerName $ContainerName -name $App.Name -publisher $App.publisher -version $App.version -unInstall 
+}
+
 New-cdsaAzureDevOpsSection -Message "Publish the main app $TargetAppFile"
 Publish-NavContainerApp -Container $ContainerName `
     -appFile $TargetAppFile `
