@@ -9,6 +9,8 @@ param(
     [Parameter(Mandatory = $false)][boolean] $ForceAppSourceValidation = [System.Convert]::ToBoolean($env:FORCEAPPSOURCEVALIDATION),
     [Parameter(Mandatory = $false)][string] $BuildBranchName = $env:BUILD_SOURCEBRANCHNAME,
     [Parameter(Mandatory = $false)][string] $CurrentBuildDefinition = $env:SYSTEM_DEFINITIONID,
+    [Parameter(Mandatory = $false)][string] $BuildDefinitionName = $env:BUILD_DEFINITIONNAME,
+
     # Static parameters
     [Parameter(Mandatory = $false)][string] $AppSourceBuildDefinitionID = 529
 )
@@ -22,7 +24,7 @@ if (($BuildBranchName -in ("main","master")) -or $ForceAppSourceValidation) {
         -BuildDefinitionId $AppSourceBuildDefinitionID `
         -SourceBranch $ERPValidationBranch `
         -QueryParameters @{ "api-version" = '5.1' } `
-        -BuildParameters @{ "ERPBuildId" = $BuildId; "ERPALFullBuildDefinitionID" = $CurrentBuildDefinition } `
+        -BuildParameters @{ "ERPBuildId" = $BuildId; "ERPALFullBuildDefinitionID" = $CurrentBuildDefinition; "TriggeredBy" = $BuildDefinitionName} `
         -Verbose
     New-cdsaAzureDevOpsSection -EndSection
 } else {
