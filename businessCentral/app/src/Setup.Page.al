@@ -155,7 +155,6 @@ page 11007165 "ADLSE Setup"
                     field("Delete Table"; Rec."Delete Table")
                     {
                         ToolTip = 'Specifies if the table will be deleted if a reset of the table is done.';
-                        Editable = not AzureDataLake;
                     }
                     field("Delivered DateTime"; Rec."Delivered DateTime")
                     {

@@ -34,6 +34,7 @@ codeunit 11007163 "ADLSE Communication"
         EntitySchemaChangedErr: Label 'The schema of the table %1 has changed. %2', Comment = '%1 = Entity name, %2 = NotAllowedOnSimultaneousExportTxt';
         CdmSchemaChangedErr: Label 'There may have been a change in the tables to export. %1', Comment = '%1 = NotAllowedOnSimultaneousExportTxt';
         MSFabricUrlTxt: Label 'https://onelake.dfs.fabric.microsoft.com/%1/%2.Lakehouse/Files', Locked = true, Comment = '%1: Workspace name, %2: Lakehouse Name';
+        MSFabricUrlGuidTxt: Label 'https://onelake.dfs.fabric.microsoft.com/%1/%2/Files', Locked = true, Comment = '%1: Workspace name, %2: Lakehouse Name';
         ResetTableExportTxt: Label '/reset/%1.txt', Locked = true, comment = '%1 = Table name';
 
     procedure SetupBlobStorage()
@@ -49,6 +50,7 @@ codeunit 11007163 "ADLSE Communication"
     local procedure GetBaseUrl(): Text
     var
         ADLSESetup: Record "ADLSE Setup";
+        ValidGuid: Guid;
     begin
         ADLSESetup.GetSingleton();
         case ADLSESetup.GetStorageType() of
@@ -60,8 +62,10 @@ codeunit 11007163 "ADLSE Communication"
                     exit(StrSubstNo(ContainerUrlTxt, ADLSESetup."Account Name", DefaultContainerName));
                 end;
             ADLSESetup."Storage Type"::"Microsoft Fabric":
-                exit(StrSubstNo(MSFabricUrlTxt, ADLSESetup.Workspace, ADLSESetup.Lakehouse));
-
+                if not Evaluate(ValidGuid, ADLSESetup.Lakehouse) then
+                    exit(StrSubstNo(MSFabricUrlTxt, ADLSESetup.Workspace, ADLSESetup.Lakehouse))
+                else
+                    exit(StrSubstNo(MSFabricUrlGuidTxt, ADLSESetup.Workspace, ADLSESetup.Lakehouse));
         end;
     end;
 
@@ -359,11 +363,20 @@ codeunit 11007163 "ADLSE Communication"
 
     procedure ResetTableExport(ltableId: Integer)
     var
+        ADLSESetup: Record "ADLSE Setup";
         ADLSEUtil: Codeunit "ADLSE Util";
         ADLSEGen2Util: Codeunit "ADLSE Gen 2 Util";
         Body: JsonObject;
     begin
+        ADLSESetup.GetSingleton();
         ADLSECredentials.Init();
-        ADLSEGen2Util.CreateOrUpdateJsonBlob(GetBaseUrl() + StrSubstNo(ResetTableExportTxt, ADLSEUtil.GetDataLakeCompliantTableName(ltableId)), ADLSECredentials, '', Body);
+        case ADLSESetup."Storage Type" of
+            "ADLSE Storage Type"::"Microsoft Fabric":
+                ADLSEGen2Util.CreateOrUpdateJsonBlob(GetBaseUrl() + StrSubstNo(ResetTableExportTxt, ADLSEUtil.GetDataLakeCompliantTableName(ltableId)), ADLSECredentials, '', Body);
+            "ADLSE Storage Type"::"Azure Data Lake":
+                ADLSEGen2Util.RemoveDeltasFromDataLake(ADLSEUtil.GetDataLakeCompliantTableName(ltableId), ADLSECredentials);
+        end;
     end;
+
+
 }
