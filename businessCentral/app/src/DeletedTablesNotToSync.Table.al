@@ -1,4 +1,6 @@
-table 82569 "Deleted Tables Not to Sync"
+namespace Zig.ADLSE;
+
+table 11007168 "Deleted Tables Not to Sync"
 {
     DataClassification = ToBeClassified;
 

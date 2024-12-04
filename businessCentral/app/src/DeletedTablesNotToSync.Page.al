@@ -1,4 +1,6 @@
-page 82564 "Deleted Tables Not To Sync"
+namespace Zig.ADLSE;
+
+page 11007172 "Deleted Tables Not To Sync"
 {
     PageType = List;
     ApplicationArea = All;
