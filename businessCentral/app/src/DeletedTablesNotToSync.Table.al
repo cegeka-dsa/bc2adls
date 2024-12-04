@@ -1,5 +1,6 @@
 namespace Zig.ADLSE;
 
+using System.Reflection;
 table 11007168 "Deleted Tables Not to Sync"
 {
     DataClassification = ToBeClassified;
