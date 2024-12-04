@@ -99,6 +99,9 @@ codeunit 11007174 "ADLSE Setup"
         ADLSECredentials.Check();
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'rd')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rd')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'm')]
     procedure FixIncorrectData()
     var
         ADLSEField: Record "ADLSE Field";

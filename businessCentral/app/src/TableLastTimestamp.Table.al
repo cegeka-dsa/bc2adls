@@ -12,6 +12,7 @@ table 11007169 "ADLSE Table Last Timestamp"
     /// </summary>
 
     Access = Internal;
+    Caption = 'ADLSE Table Last Timestamp';
     DataClassification = CustomerContent;
     DataPerCompany = false;
 
@@ -53,6 +54,7 @@ table 11007169 "ADLSE Table Last Timestamp"
         SaveUpsertLastTimestampFailedErr: Label 'Could not save the last time stamp for the upserts on table %1.', Comment = '%1: table caption';
         SaveDeletionLastTimestampFailedErr: Label 'Could not save the last time stamp for the deletions on table %1.', Comment = '%1: table caption';
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'r')]
     procedure ExistsUpdatedLastTimestamp(TableID: Integer): Boolean
     begin
         exit(Rec.Get(GetCompanyNameToLookFor(TableID), TableID));
@@ -64,6 +66,7 @@ table 11007169 "ADLSE Table Last Timestamp"
             exit(Rec."Updated Last Timestamp");
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'r')]
     procedure GetDeletedLastEntryNo(TableID: Integer): BigInteger
     begin
         if Rec.Get(GetCompanyNameToLookFor(TableID), TableID) then
@@ -116,6 +119,7 @@ table 11007169 "ADLSE Table Last Timestamp"
         exit(RecordLastTimestamp(TableID, Timestamp, false));
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'rmi')]
     local procedure RecordLastTimestamp(TableID: Integer; Timestamp: BigInteger; Upsert: Boolean): Boolean
     var
         Company: Text;
@@ -123,13 +127,13 @@ table 11007169 "ADLSE Table Last Timestamp"
         Company := GetCompanyNameToLookFor(TableID);
         if Rec.Get(Company, TableID) then begin
             ChangeLastTimestamp(Timestamp, Upsert);
-            exit(Rec.Modify());
+            exit(Rec.Modify(true));
         end else begin
             Rec.Init();
             Rec."Company Name" := CopyStr(Company, 1, 30);
             Rec."Table ID" := TableID;
             ChangeLastTimestamp(Timestamp, Upsert);
-            exit(Rec.Insert());
+            exit(Rec.Insert(true));
         end;
     end;
 

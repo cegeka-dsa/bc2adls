@@ -4,16 +4,23 @@ using System.Reflection;
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+#pragma warning disable LC0015
 table 11007171 "ADLSE Table"
+#pragma warning restore
 {
     Access = Internal;
+    Caption = 'ADLSE Table';
     DataClassification = CustomerContent;
     DataPerCompany = false;
+    Permissions = tabledata "ADLSE Field" = rd,
+                  tabledata "ADLSE Table Last Timestamp" = d,
+                  tabledata "ADLSE Deleted Record" = d;
 
     fields
     {
         field(1; "Table ID"; Integer)
         {
+            AllowInCustomizations = Always;
             Editable = false;
             Caption = 'Table ID';
         }
@@ -28,6 +35,7 @@ table 11007171 "ADLSE Table"
         {
             Editable = false;
             Caption = 'Enabled';
+            ToolTip = 'Specifies the state of the table. Set this checkmark to export this table, otherwise not.';
 
             trigger OnValidate()
             var
@@ -82,13 +90,13 @@ table 11007171 "ADLSE Table"
         ADLSESetup.SchemaExported();
 
         ADLSETableField.SetRange("Table ID", Rec."Table ID");
-        ADLSETableField.DeleteAll();
+        ADLSETableField.DeleteAll(false);
 
         ADLSEDeletedRecord.SetRange("Table ID", Rec."Table ID");
-        ADLSEDeletedRecord.DeleteAll();
+        ADLSEDeletedRecord.DeleteAll(false);
 
         ADLSETableLastTimestamp.SetRange("Table ID", Rec."Table ID");
-        ADLSETableLastTimestamp.DeleteAll();
+        ADLSETableLastTimestamp.DeleteAll(false);
 
         ADLSEExternalEvents.OnDeleteTable(Rec);
     end;
@@ -118,6 +126,7 @@ table 11007171 "ADLSE Table"
         exit(ADLSEField.Count());
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'i')]
     procedure Add(TableID: Integer)
     var
         ADLSEExternalEvents: Codeunit "ADLSE External Events";
@@ -129,6 +138,7 @@ table 11007171 "ADLSE Table"
         Rec.Enabled := true;
         Rec.Insert(true);
 
+        AddPrimaryKeyFields();
         ADLSEExternalEvents.OnAddTable(Rec);
     end;
 
@@ -164,10 +174,10 @@ table 11007171 "ADLSE Table"
             Error(TableExportingDataErr, ADLSEUtil.GetTableCaption(Rec."Table ID"));
     end;
 
-    local procedure GetLastRunState(): enum "ADLSE Run State"
+    local procedure GetLastRunState(): Enum "ADLSE Run State"
     var
         ADLSERun: Record "ADLSE Run";
-        LastState: enum "ADLSE Run State";
+        LastState: Enum "ADLSE Run State";
         LastStarted: DateTime;
         LastErrorText: Text[2048];
     begin
@@ -175,6 +185,7 @@ table 11007171 "ADLSE Table"
         exit(LastState);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rm')]
     procedure ResetSelected()
     var
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
@@ -187,14 +198,14 @@ table 11007171 "ADLSE Table"
             repeat
                 if not Rec.Enabled then begin
                     Rec.Enabled := true;
-                    Rec.Modify();
+                    Rec.Modify(true);
                 end;
 
                 ADLSETableLastTimestamp.SaveUpdatedLastTimestamp(Rec."Table ID", 0);
                 ADLSETableLastTimestamp.SaveDeletedLastEntryNo(Rec."Table ID", 0);
 
                 ADLSEDeletedRecord.SetRange("Table ID", Rec."Table ID");
-                ADLSEDeletedRecord.DeleteAll();
+                ADLSEDeletedRecord.DeleteAll(false);
 
                 ADLSESetup.GetSingleton();
                 if (ADLSESetup."Delete Table") then
@@ -210,6 +221,7 @@ table 11007171 "ADLSE Table"
             Message(TablesResetTxt, Counter, '.');
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
     local procedure CheckExportingOnlyValidFields()
     var
         ADLSEField: Record "ADLSE Field";
@@ -225,6 +237,7 @@ table 11007171 "ADLSE Table"
             until ADLSEField.Next() = 0;
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
     procedure ListInvalidFieldsBeingExported() FieldList: List of [Text]
     var
         ADLSEField: Record "ADLSE Field";
@@ -251,6 +264,7 @@ table 11007171 "ADLSE Table"
         end;
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'rm')]
     procedure AddAllFields()
     var
         ADLSEFields: Record "ADLSE Field";
@@ -261,13 +275,30 @@ table 11007171 "ADLSE Table"
             repeat
                 if (ADLSEFields.CanFieldBeEnabled()) then begin
                     ADLSEFields.Enabled := true;
-                    ADLSEFields.Modify();
+                    ADLSEFields.Modify(true);
                 end;
             until ADLSEFields.Next() = 0;
     end;
 
+    local procedure AddPrimaryKeyFields()
+    var
+        Field: Record Field;
+        ADLSEField: Record "ADLSE Field";
+    begin
+        Field.SetRange(TableNo, Rec."Table ID");
+        Field.SetRange(IsPartOfPrimaryKey, true);
+        if Field.Findset() then
+            repeat
+                if not ADLSEField.Get(Rec."Table ID", Field."No.") then begin
+                    ADLSEField."Table ID" := Field.TableNo;
+                    ADLSEField."Field ID" := Field."No.";
+                    ADLSEField.Enabled := true;
+                    ADLSEField.Insert();
+                end;
+            until Field.Next() = 0;
+    end;
     [IntegrationEvent(false, false)]
-    local procedure OnAfterResetSelected(ADLSETable: record "ADLSE Table")
+    local procedure OnAfterResetSelected(ADLSETable: Record "ADLSE Table")
     begin
 
     end;

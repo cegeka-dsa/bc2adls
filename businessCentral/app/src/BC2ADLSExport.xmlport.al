@@ -5,6 +5,8 @@ xmlport 11007161 "BC2ADLS Export"
     Caption = 'BC2ADLS Export';
     UseRequestPage = false;
     Direction = Export;
+    Permissions = tabledata "ADLSE Field" = r,
+                  tabledata "ADLSE Table" = r;
 
     schema
     {

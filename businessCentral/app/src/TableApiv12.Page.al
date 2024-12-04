@@ -1,23 +1,19 @@
-namespace Zig.ADLSE;
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-page 11007170 "ADLSE Table API"
+page 82575 "ADLSE Table API v12"
 {
     PageType = API;
     APIPublisher = 'bc2adlsTeamMicrosoft';
     APIGroup = 'bc2adls';
-    APIVersion = 'v1.0', 'v1.1';
+    APIVersion = 'v1.2';
     EntityName = 'adlseTable';
     EntitySetName = 'adlseTables';
     SourceTable = "ADLSE Table";
     InsertAllowed = true;
     ModifyAllowed = false;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     DelayedInsert = true;
     ODataKeyFields = SystemId;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'This API is obsolete. Use the API v1.2 instead.';
 
     layout
     {
@@ -30,7 +26,7 @@ page 11007170 "ADLSE Table API"
                 {
                     Editable = false;
                 }
-                field(systemId; Rec.SystemId)
+                field(id; Rec.SystemId)
                 {
                     Editable = false;
                 }
@@ -45,7 +41,7 @@ page 11007170 "ADLSE Table API"
                     Editable = false;
                 }
             }
-            part(adlseField; "ADLSE Field API")
+            part(adlseField; "ADLSE Field API v12")
             {
                 EntityName = 'adlseField';
                 EntitySetName = 'adlseFields';
@@ -109,7 +105,7 @@ page 11007170 "ADLSE Table API"
     local procedure SetActionResponse(var ActionContext: WebServiceActionContext; AdlsId: Guid)
     var
     begin
-        SetActionResponse(ActionContext, Page::"ADLSE Table API", AdlsId);
+        SetActionResponse(ActionContext, Page::"ADLSE Table API v12", AdlsId);
     end;
 
     local procedure SetActionResponse(var ActionContext: WebServiceActionContext; PageId: Integer; DocumentId: Guid)

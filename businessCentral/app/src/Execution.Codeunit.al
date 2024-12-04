@@ -23,6 +23,8 @@ codeunit 11007167 "ADLSE Execution"
         ClearSchemaExportedOnMsg: Label 'The schema export date has been cleared.';
 
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'r')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
     internal procedure StartExport()
     var
         ADLSESetupRec: Record "ADLSE Setup";
@@ -84,6 +86,8 @@ codeunit 11007167 "ADLSE Execution"
             Log('ADLSE-019', 'Stopped export sessions', Verbosity::Normal);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'r')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'm')]
     internal procedure SchemaExport()
     var
         ADLSESetup: Record "ADLSE Setup";
@@ -120,11 +124,12 @@ codeunit 11007167 "ADLSE Execution"
 
         ADLSESetup.GetSingleton();
         ADLSESetup."Schema Exported On" := CurrentDateTime();
-        ADLSESetup.Modify();
+        ADLSESetup.Modify(true);
 
         ADLSEExternalEvents.OnExportSchema(ADLSESetup);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'm')]
     internal procedure ClearSchemaExportedOn()
     var
         ADLSESetup: Record "ADLSE Setup";
@@ -132,7 +137,7 @@ codeunit 11007167 "ADLSE Execution"
     begin
         ADLSESetup.GetSingleton();
         ADLSESetup."Schema Exported On" := 0DT;
-        ADLSESetup.Modify();
+        ADLSESetup.Modify(true);
         if GuiAllowed then
             Message(ClearSchemaExportedOnMsg);
 
@@ -167,7 +172,7 @@ codeunit 11007167 "ADLSE Execution"
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
         JobQueueEntry.Description := JobQueueCategory.Description;
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
-        JobQueueEntry."Object ID to Run" := CODEUNIT::"ADLSE Execution";
+        JobQueueEntry."Object ID to Run" := Codeunit::"ADLSE Execution";
         JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime(); // now
     end;
 
@@ -185,7 +190,7 @@ codeunit 11007167 "ADLSE Execution"
 
     [InherentPermissions(PermissionObjectType::Table, Database::"ADLSE Table Last Timestamp", 'X')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'R')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterGetDatabaseTableTriggerSetup', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, OnAfterGetDatabaseTableTriggerSetup, '', true, true)]
     local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
@@ -201,16 +206,15 @@ codeunit 11007167 "ADLSE Execution"
     [InherentPermissions(PermissionObjectType::Table, Database::"ADLSE Table Last Timestamp", 'X')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'R')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Deleted Record", 'RI')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, 'OnAfterOnDatabaseDelete', '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, OnAfterOnDatabaseDelete, '', true, true)]
     local procedure OnAfterOnDatabaseDelete(RecRef: RecordRef)
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
+        DeletedTablesNottoSync: Record "Deleted Tables Not to Sync";
     begin
-        // exit function for tables that you do not wish to sync deletes for
-        // you should also consider not registering for deletes for the table in the function GetDatabaseTableTriggerSetup above.
-        // if RecRef.Number = Database::"G/L Entry" then
-        //     exit;
+        if DeletedTablesNottoSync.Get(RecRef.Number) then
+            exit;
 
         // check if table is to be tracked.
         if not ADLSETableLastTimestamp.ExistsUpdatedLastTimestamp(RecRef.Number) then
