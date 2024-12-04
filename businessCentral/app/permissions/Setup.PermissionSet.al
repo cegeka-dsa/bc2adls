@@ -31,5 +31,5 @@ permissionset 11007161 "ADLSE - Setup"
                   page "ADLSE Run" = X,
                   page "ADLSE Enum Translations" = X,
                   page "ADLSE Enum Translations Lang" = X,
-                  xmlport "BC2ADLS Import" = X;
+                  xmlport "BC2ADLS Import/Export" = X;
 }
