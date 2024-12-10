@@ -140,7 +140,7 @@ codeunit 11007166 "ADLSE Execute"
         if not SkipTimestampSorting then
             RecordRef.SetView(TimestampAscendingSortViewTxt);
         TimeStampFieldRef := RecordRef.Field(0); // 0 is the TimeStamp field
-        TimeStampFieldRef.SetFilter('>%1', UpdatedLastTimestamp);
+        TimeStampFieldRef.SetFilter('>%1', UpdatedLastTimeStamp);
     end;
 
     local procedure ExportTableUpdates(TableID: Integer; FieldIdList: List of [Integer]; ADLSECommunication: Codeunit "ADLSE Communication"; var UpdatedLastTimeStamp: BigInteger)
@@ -158,12 +158,13 @@ codeunit 11007166 "ADLSE Execute"
         FlushedTimeStamp: BigInteger;
         FieldId: Integer;
         SystemCreatedAt, UtcEpochZero : DateTime;
+        ErrorMessage: ErrorInfo;
     begin
         ADLSESetup.GetSingleton();
         SetFilterForUpdates(TableID, UpdatedLastTimeStamp, ADLSESetup."Skip Timestamp Sorting On Recs", RecordRef, TimeStampFieldRef);
 
         foreach FieldId in FieldIdList do
-            if RecordRef.AddLoadFields(FieldID) then;
+            if RecordRef.AddLoadFields(FieldId) then; // ignore the return value
 
         if not RecordRef.ReadPermission() then
             Error(InsufficientReadPermErr);
@@ -191,14 +192,14 @@ codeunit 11007166 "ADLSE Execute"
                     if UpdatedLastTimeStamp < FlushedTimeStamp then // sample the highest timestamp, to cater to the eventuality that the records do not appear sorted per timestamp
                         UpdatedLastTimeStamp := FlushedTimeStamp;
                 end else
-                    Error('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+                    ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
             until RecordRef.Next() = 0;
 
             if ADLSECommunication.TryFinish(FlushedTimeStamp) then begin
                 if UpdatedLastTimeStamp < FlushedTimeStamp then // sample the highest timestamp, to cater to the eventuality that the records do not appear sorted per timestamp
                     UpdatedLastTimeStamp := FlushedTimeStamp
             end else
-                Error('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+                ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
         end;
         if EmitTelemetry then
             ADLSEExecution.Log('ADLSE-009', 'Updated records exported', Verbosity::Normal);
@@ -220,6 +221,7 @@ codeunit 11007166 "ADLSE Execute"
         ADLSEDeletedRecord.SetFilter("Entry No.", '>%1', DeletedLastEntryNo);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Deleted Record", 'r')]
     local procedure ExportTableDeletes(TableID: Integer; ADLSECommunication: Codeunit "ADLSE Communication"; var DeletedLastEntryNo: BigInteger)
     var
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
@@ -231,6 +233,7 @@ codeunit 11007166 "ADLSE Execute"
         TableCaption: Text;
         EntityCount: Text;
         FlushedTimeStamp: BigInteger;
+        ErrorMessage: ErrorInfo;
     begin
         SetFilterForDeletes(TableID, DeletedLastEntryNo, ADLSEDeletedRecord);
 
@@ -254,18 +257,19 @@ codeunit 11007166 "ADLSE Execute"
                     if ADLSECommunication.TryCollectAndSendRecord(RecordRef, ADLSEDeletedRecord."Entry No.", FlushedTimeStamp) then
                         DeletedLastEntryNo := FlushedTimeStamp
                     else
-                        Error('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+                        ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
                 until ADLSEDeletedRecord.Next() = 0;
 
             if ADLSECommunication.TryFinish(FlushedTimeStamp) then
                 DeletedLastEntryNo := FlushedTimeStamp
             else
-                Error('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+                ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
         end;
         if EmitTelemetry then
             ADLSEExecution.Log('ADLSE-011', 'Deleted records exported', Verbosity::Normal, CustomDimensions);
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Deleted Record", 'rd')]
     procedure FixDeletedRecordThatAreInTable(var ADLSEDeletedRecord: Record "ADLSE Deleted Record")
     var
         RecordRef: RecordRef;
@@ -285,6 +289,7 @@ codeunit 11007166 "ADLSE Execute"
             until ADLSEDeletedRecord.Next() = 0;
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
     procedure CreateFieldListForTable(TableID: Integer) FieldIdList: List of [Integer]
     var
         ADLSEField: Record "ADLSE Field";
@@ -315,7 +320,7 @@ codeunit 11007166 "ADLSE Execute"
             CustomDimensions.Add('Entity', TableCaption);
             ADLSEExecution.Log('ADLSE-037', 'Finished the export process', Verbosity::Normal, CustomDimensions);
         end;
-        Commit();
+        Commit(); //To avoid misreading
 
         // This export session is soon going to end. Start up a new one from 
         // the stored list of pending tables to export.

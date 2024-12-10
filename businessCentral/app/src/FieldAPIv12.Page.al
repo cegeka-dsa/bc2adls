@@ -2,12 +2,12 @@ namespace Zig.ADLSE;
 
 // Create an API page for table and field
 
-page 11007162 "ADLSE Field API"
+page 11007174 "ADLSE Field API v12"
 {
     PageType = API;
     APIPublisher = 'bc2adlsTeamMicrosoft';
     APIGroup = 'bc2adls';
-    APIVersion = 'v1.0', 'v1.1';
+    APIVersion = 'v1.2';
     EntityName = 'adlseField';
     EntitySetName = 'adlseFields';
     SourceTable = "ADLSE Field";
@@ -16,8 +16,6 @@ page 11007162 "ADLSE Field API"
     DeleteAllowed = false;
     DelayedInsert = true;
     ODataKeyFields = SystemId;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'This API is obsolete. Use the API v1.2 instead.';
 
     layout
     {
@@ -28,7 +26,7 @@ page 11007162 "ADLSE Field API"
                 field(tableId; Rec."Table ID") { }
                 field(fieldId; Rec."Field ID") { }
                 field(enabled; Rec.Enabled) { }
-                field(systemId; Rec.SystemId)
+                field(id; Rec.SystemId)
                 {
                     Editable = false;
                 }
@@ -78,7 +76,7 @@ page 11007162 "ADLSE Field API"
     local procedure SetActionResponse(var ActionContext: WebServiceActionContext; AdlsId: Guid)
     var
     begin
-        SetActionResponse(ActionContext, Page::"ADLSE Field API", AdlsId);
+        SetActionResponse(ActionContext, Page::"ADLSE Field API v12", AdlsId);
     end;
 
     local procedure SetActionResponse(var ActionContext: WebServiceActionContext; PageId: Integer; DocumentId: Guid)

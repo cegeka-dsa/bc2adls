@@ -21,59 +21,61 @@ page 11007168 "ADLSE Setup Fields"
         {
             repeater(GroupName)
             {
-                field("FieldCaption"; Rec.FieldCaption)
-                {
-                    ApplicationArea = All;
-                    Tooltip = 'Specifies the name of the field to be exported';
-                }
+                field("FieldCaption"; Rec.FieldCaption) 
+		{ 
+                    StyleExpr = StyleExprAsText;
+		}
 
                 field("Field ID"; Rec."Field ID")
                 {
-                    ApplicationArea = All;
                     Caption = 'Number';
-                    Tooltip = 'Specifies the ID of the field to be exported';
+                    StyleExpr = StyleExprAsText;
                     Visible = false;
                 }
 
-                field(Enabled; Rec.Enabled)
+                field(Enabled; Rec.Enabled) 
+		{ 
+                    StyleExpr = StyleExprAsText;
+		}
+                field(IsPartOfPrimaryKey; IsPartOfPrimaryKey)
                 {
                     ApplicationArea = All;
-                    Tooltip = 'Specifies if the field will be exported';
+                    Caption = 'Part of Primary Key';
+                    Editable = false;
+                    StyleExpr = StyleExprAsText;
+                    ToolTip = 'Specifies if the the field is part of the primary key';
                 }
-
                 field(ADLSFieldName; ADLSFieldName)
                 {
-                    ApplicationArea = All;
                     Caption = 'Attribute name';
-                    Tooltip = 'Specifies the name of the field for this entity in the data lake.';
+                    StyleExpr = StyleExprAsText;
+                    ToolTip = 'Specifies the name of the field for this entity in the data lake.';
                     Editable = false;
                 }
 
                 field("Field Class"; FieldClassName)
                 {
-                    ApplicationArea = All;
                     Caption = 'Class';
                     OptionCaption = 'Normal,FlowField,FlowFilter';
-                    Tooltip = 'Specifies the field class';
+                    StyleExpr = StyleExprAsText;
+                    ToolTip = 'Specifies the field class.';
                     Editable = false;
                     Visible = false;
                 }
 
                 field("Field Type"; FieldTypeName)
                 {
-                    ApplicationArea = All;
                     Caption = 'Type';
-                    Tooltip = 'Specifies the field type';
+                    ToolTip = 'Specifies the field type.';
                     Editable = false;
                     Visible = false;
                 }
 
                 field("Obsolete State"; FieldObsoleteState)
                 {
-                    ApplicationArea = All;
                     Caption = 'Obsolete State';
                     OptionCaption = 'No,Pending,Removed';
-                    Tooltip = 'Specifies the Obsolete State of the field';
+                    ToolTip = 'Specifies the Obsolete State of the field.';
                     Editable = false;
                     Visible = false;
                 }
@@ -123,10 +125,17 @@ page 11007168 "ADLSE Setup Fields"
         FieldClassName := Field.Class;
         FieldTypeName := Field."Type Name";
         FieldObsoleteState := Field.ObsoleteState;
+        IsPartOfPrimaryKey := Field.IsPartOfPrimaryKey;
+        if IsPartOfPrimaryKey then
+            StyleExprAsText := 'StrongAccent'
+        else
+            StyleExprAsText := 'Standard';
     end;
 
     var
+        IsPartOfPrimaryKey: Boolean;
         ADLSFieldName: Text;
+        StyleExprAsText: Text;
         FieldClassName: Option Normal,FlowField,FlowFilter;
         FieldTypeName: Text[30];
         SomeFieldsCouldNotBeEnabledMsg: Label 'One or more fields could not be enabled.';

@@ -117,7 +117,9 @@ codeunit 11007168 "ADLSE External Events"
     begin
         Url := ADLSEExternalEventsHelper.CreateLink(ADLSEFieldApiUrlTok, ADLSESetup.SystemId);
         WebClientUrl := CopyStr(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"ADLSE Setup", ADLSESetup), 1, MaxStrLen(WebClientUrl));
+#pragma warning disable AL0432
         MyBusinessOnExportFinished(ADLSESetup.SystemId, ADLSESetup."Storage Type", Url, WebClientUrl);
+#pragma warning restore AL0432
     end;
 
     internal procedure OnExportFinished(ADLSESetup: Record "ADLSE Setup"; ADLSETable: Record "ADLSE Table")
@@ -240,7 +242,7 @@ codeunit 11007168 "ADLSE External Events"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"ADLSE Table", OnAfterResetSelected, '', true, true)]
-    local procedure OnAfterResetSelected(ADLSETable: Record "ADLSE Table");
+    local procedure OnAfterResetSelected(ADLSETable: Record "ADLSE Table")
     begin
         MyBusinessEventOnAfterResetSelected(ADLSETable.SystemId, ADLSETable."Table ID");
     end;

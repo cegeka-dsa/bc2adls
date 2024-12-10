@@ -4,6 +4,9 @@ xmlport 11007160 "BC2ADLS Import/Export"
 {
     Caption = 'BC2ADLS Import/Export';
     UseRequestPage = false;
+    Direction = Import;
+    Permissions = tabledata "ADLSE Field" = rmi,
+                  tabledata "ADLSE Table" = rmid;
 
     schema
     {
