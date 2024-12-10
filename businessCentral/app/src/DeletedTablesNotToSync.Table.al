@@ -3,13 +3,13 @@ namespace Zig.ADLSE;
 using System.Reflection;
 table 11007168 "Deleted Tables Not to Sync"
 {
-    DataClassification = ToBeClassified;
+    DataClassification = SystemMetadata;
 
     fields
     {
         field(1; TableId; Integer)
         {
-            DataClassification = ToBeClassified;
+            DataClassification = SystemMetadata;
             TableRelation = "ADLSE Table"."Table ID";
             Caption = 'Table ID';
             ToolTip = 'Specify the ID of the table that should not be tracked for deletes.';
