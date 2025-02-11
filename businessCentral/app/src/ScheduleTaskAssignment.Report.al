@@ -1,4 +1,4 @@
-report 82561 "ADLSE Schedule Task Assignment"
+report 11007161 "ADLSE Schedule Task Assignment"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Schedule Export';
