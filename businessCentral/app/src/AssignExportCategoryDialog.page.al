@@ -1,4 +1,4 @@
-page 82576 "ADLSE Assign Export Category"
+page 11007176 "ADLSE Assign Export Category"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Assign Export Category';
