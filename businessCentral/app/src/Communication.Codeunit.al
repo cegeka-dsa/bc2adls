@@ -25,7 +25,7 @@ codeunit 11007163 "ADLSE Communication"
         DeltaCdmManifestNameTxt: Label 'deltas.manifest.cdm.json', Locked = true;
         DataCdmManifestNameTxt: Label 'data.manifest.cdm.json', Locked = true;
         EntityManifestNameTemplateTxt: Label '%1.cdm.json', Locked = true, Comment = '%1 = Entity name';
-        ContainerUrlTxt: Label 'https://%1.blob.core.windows.net/%2', Comment = '%1: Account name, %2: Container Name';
+        ContainerUrlTxt: Label 'https://%1.blob.core.windows.net/%2', Locked = true, Comment = '%1: Account name, %2: Container Name';
         CorpusJsonPathTxt: Label '/%1', Comment = '%1 = name of the blob', Locked = true;
         CannotAddedMoreBlocksErr: Label 'The number of blocks that can be added to the blob has reached its maximum limit.';
         SingleRecordTooLargeErr: Label 'A single record payload exceeded the max payload size. Please adjust the payload size or reduce the fields to be exported for the record.';
@@ -362,6 +362,11 @@ codeunit 11007163 "ADLSE Communication"
     end;
 
     procedure ResetTableExport(ltableId: Integer)
+    begin
+        ResetTableExport(ltableId, false);
+    end;
+
+    procedure ResetTableExport(ltableId: Integer; AllCompanies: Boolean)
     var
         ADLSESetup: Record "ADLSE Setup";
         ADLSEUtil: Codeunit "ADLSE Util";
@@ -370,13 +375,17 @@ codeunit 11007163 "ADLSE Communication"
     begin
         ADLSESetup.GetSingleton();
         ADLSECredentials.Init();
+
+        if not AllCompanies then
+            if ADLSESetup."Export Company Database Tables" in ['', CompanyName()] then
+                if not ADLSEUtil.IsTablePerCompany(ltableId) then
+                    AllCompanies := true;
+
         case ADLSESetup."Storage Type" of
             "ADLSE Storage Type"::"Microsoft Fabric":
                 ADLSEGen2Util.CreateOrUpdateJsonBlob(GetBaseUrl() + StrSubstNo(ResetTableExportTxt, ADLSEUtil.GetDataLakeCompliantTableName(ltableId)), ADLSECredentials, '', Body);
             "ADLSE Storage Type"::"Azure Data Lake":
-                ADLSEGen2Util.RemoveDeltasFromDataLake(ADLSEUtil.GetDataLakeCompliantTableName(ltableId), ADLSECredentials);
+                ADLSEGen2Util.RemoveDeltasFromDataLake(ADLSEUtil.GetDataLakeCompliantTableName(ltableId), ADLSECredentials, AllCompanies);
         end;
     end;
-
-
 }

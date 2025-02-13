@@ -60,6 +60,12 @@ table 11007171 "ADLSE Table"
             ObsoleteTag = '1.2.2.0';
             ObsoleteState = Removed;
         }
+        field(10; ExportCategory; Code[50])
+        {
+            TableRelation = "ADLSE Export Category Table";
+            DataClassification = CustomerContent;
+            ToolTip = 'Specifies the Export Category which can be linked to tables which are part of the export to Azure Datalake. The Category can be used to schedule the export.';
+        }
     }
 
     keys
@@ -105,9 +111,10 @@ table 11007171 "ADLSE Table"
     var
         ADLSESetup: Record "ADLSE Setup";
     begin
-        ADLSESetup.SchemaExported();
-
-        CheckNotExporting();
+        if (Rec."Table ID" <> xRec."Table ID") or (Rec.Enabled <> xRec.Enabled) then begin
+            ADLSESetup.SchemaExported();
+            CheckNotExporting();
+        end;
     end;
 
     var
@@ -187,6 +194,12 @@ table 11007171 "ADLSE Table"
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rm')]
     procedure ResetSelected()
+    begin
+        ResetSelected(false);
+    end;
+
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rm')]
+    procedure ResetSelected(AllCompanies: Boolean)
     var
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
@@ -201,15 +214,21 @@ table 11007171 "ADLSE Table"
                     Rec.Modify(true);
                 end;
 
-                ADLSETableLastTimestamp.SaveUpdatedLastTimestamp(Rec."Table ID", 0);
-                ADLSETableLastTimestamp.SaveDeletedLastEntryNo(Rec."Table ID", 0);
-
+                if not AllCompanies then begin
+                    ADLSETableLastTimestamp.SaveUpdatedLastTimestamp(Rec."Table ID", 0);
+                    ADLSETableLastTimestamp.SaveDeletedLastEntryNo(Rec."Table ID", 0);
+                end else begin
+                    ADLSETableLastTimestamp.SetRange("Table ID", rec."Table ID");
+                    ADLSETableLastTimestamp.ModifyAll("Updated Last Timestamp", 0);
+                    ADLSETableLastTimestamp.ModifyAll("Deleted Last Entry No.", 0);
+                    ADLSETableLastTimestamp.SetRange("Table ID");
+                end;
                 ADLSEDeletedRecord.SetRange("Table ID", Rec."Table ID");
                 ADLSEDeletedRecord.DeleteAll(false);
 
                 ADLSESetup.GetSingleton();
                 if (ADLSESetup."Delete Table") then
-                    ADLSECommunication.ResetTableExport(Rec."Table ID");
+                    ADLSECommunication.ResetTableExport(Rec."Table ID", AllCompanies);
 
                 OnAfterResetSelected(Rec);
 
@@ -297,6 +316,7 @@ table 11007171 "ADLSE Table"
                 end;
             until Field.Next() = 0;
     end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterResetSelected(ADLSETable: Record "ADLSE Table")
     begin

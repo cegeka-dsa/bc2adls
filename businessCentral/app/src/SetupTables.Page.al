@@ -88,6 +88,11 @@ page 11007169 "ADLSE Setup Tables"
                     Caption = 'Last timestamp deleted';
                     Visible = false;
                 }
+                field(ExportCategory; Rec.ExportCategory)
+                {
+                    Caption = 'Export Category';
+                    ApplicationArea = All;
+                }
             }
         }
     }
@@ -153,9 +158,23 @@ page 11007169 "ADLSE Setup Tables"
                 trigger OnAction()
                 var
                     SelectedADLSETable: Record "ADLSE Table";
+                    Options: Text[30];
+                    OptionStringLbl: Label 'Current Company,All Companies';
+                    ChosenOption: Integer;
                 begin
+                    Options := OptionStringLbl;
+                    ChosenOption := Dialog.StrMenu(Options, 1, 'Do you want to reset the selected tables for the current company or all companies?');
                     CurrPage.SetSelectionFilter(SelectedADLSETable);
-                    SelectedADLSETable.ResetSelected();
+                    case ChosenOption of
+                        0:
+                            exit;
+                        1:
+                            SelectedADLSETable.ResetSelected(false);
+                        2:
+                            SelectedADLSETable.ResetSelected(true);
+                        else
+                            Error('Chosen option is not valid');
+                    end;
                     CurrPage.Update();
                 end;
             }
@@ -205,6 +224,25 @@ page 11007169 "ADLSE Setup Tables"
                     ADLSETable.Reset();
                     XmlPort.Run(XmlPort::"BC2ADLS Export", false, false, ADLSETable);
                     CurrPage.Update(false);
+                end;
+            }
+            action(AssignExportCategory)
+            {
+                ApplicationArea = All;
+                Caption = 'Assign Export Category';
+                Image = Apply;
+                ToolTip = 'Assign an Export Category to the Table.';
+
+                trigger OnAction()
+                var
+                    ADLSETable: Record "ADLSE Table";
+                    AssignExportCategory: Page "ADLSE Assign Export Category";
+                begin
+                    CurrPage.SetSelectionFilter(ADLSETable);
+                    AssignExportCategory.LookupMode(true);
+                    if AssignExportCategory.RunModal() = Action::LookupOK then
+                        ADLSETable.ModifyAll(ExportCategory, AssignExportCategory.GetExportCategoryCode());
+                    CurrPage.Update();
                 end;
             }
         }

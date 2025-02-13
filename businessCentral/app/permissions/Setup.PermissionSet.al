@@ -21,6 +21,10 @@ permissionset 11007161 "ADLSE - Setup"
                   tabledata "ADLSE Enum Translation" = RIMD,
                   tabledata "ADLSE Enum Translation Lang" = RIMD,
                   tabledata "Deleted Tables Not to Sync" = RIMD,
+#pragma warning disable AL0432
+                  tabledata "ADLSE Export Category" = RIMD,
+#pragma warning restore AL0432
+                  tabledata "ADLSE Export Category Table" = RIMD,
                   codeunit "ADLSE Clear Tracked Deletions" = X,
                   codeunit "ADLSE Credentials" = X,
                   codeunit "ADLSE Setup" = X,
@@ -31,5 +35,9 @@ permissionset 11007161 "ADLSE - Setup"
                   page "ADLSE Run" = X,
                   page "ADLSE Enum Translations" = X,
                   page "ADLSE Enum Translations Lang" = X,
+                  page "ADLSE Export Categories" = X,
+                  page "ADLSE Assign Export Category" = X,
+                  page "Deleted Tables Not To Sync" = X,
+                  report "ADLSE Schedule Task Assignment" = X,
                   xmlport "BC2ADLS Import/Export" = X;
 }
