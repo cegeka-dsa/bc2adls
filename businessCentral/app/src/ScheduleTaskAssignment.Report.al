@@ -1,9 +1,12 @@
+namespace Zig.ADLSE;
+
+using System.Threading;
+
 report 11007161 "ADLSE Schedule Task Assignment"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Schedule Export';
     ProcessingOnly = true;
-
 
     dataset
     {

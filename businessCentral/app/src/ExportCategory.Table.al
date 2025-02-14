@@ -1,3 +1,5 @@
+namespace Zig.ADLSE;
+
 table 11007172 "ADLSE Export Category"
 {
     Caption = 'Export Category';
