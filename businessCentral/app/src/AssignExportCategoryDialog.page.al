@@ -1,3 +1,5 @@
+namespace Zig.ADLSE;
+
 page 11007176 "ADLSE Assign Export Category"
 {
     ApplicationArea = Basic, Suite;
