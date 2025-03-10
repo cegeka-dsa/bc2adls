@@ -7,7 +7,7 @@ report 11007161 "ADLSE Schedule Task Assignment"
     ApplicationArea = Basic, Suite;
     Caption = 'Schedule Export';
     ProcessingOnly = true;
-    ExecutionTimeout = '48:00:00';
+    ExecutionTimeout = '2.00:00:00';
 
     dataset
     {
