@@ -88,7 +88,7 @@ page 11007165 "ADLSE Setup"
                     Caption = 'Execution';
                     field(MaxPayloadSize; Rec.MaxPayloadSizeMiB)
                     {
-                        Editable = not AzureDataLake;
+                        Editable = AzureDataLake;
 
                     }
 
