@@ -35,6 +35,7 @@ codeunit 11007173 "ADLSE Session Manager"
         ADLSEUtil: Codeunit "ADLSE Util";
         CustomDimensions: Dictionary of [Text, Text];
         NewSessionID: Integer;
+        SessionTimeout: Duration;
     begin
         if ForceExport or DataChangesExist(TableID) then begin
             ADLSETable.Get(TableID);
@@ -45,7 +46,8 @@ codeunit 11007173 "ADLSE Session Manager"
                     if (ADLSESetup."Export Company Database Tables" <> CompanyName()) then
                         exit;
 
-            Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Execute", CompanyName(), ADLSETable);
+            SessionTimeout := 1000 * 60 * 60 * 24; // 24 hours
+            Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Execute", CompanyName(), ADLSETable, SessionTimeout);
             CustomDimensions.Add('Entity', ADLSEUtil.GetTableCaption(TableID));
             CustomDimensions.Add('ExportWasPending', Format(ExportWasPending));
             if Started then begin
