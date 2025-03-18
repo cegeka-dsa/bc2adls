@@ -5,8 +5,8 @@ param(
     $ContainerName = $Env:ContainerName,
     $LicenseFile,
     [Parameter(Mandatory = $false)][string] $ResourceGroupName = "SYS-Storage",
-    [Parameter(Mandatory = $false)][string] $StorageAccountName = "cegekadsatemplates",
-    [Parameter(Mandatory = $false)][string] $StorageContainerName = "business-central-license"
+    [Parameter(Mandatory = $false)][string] $StorageAccountName = "erpsources",
+    [Parameter(Mandatory = $false)][string] $StorageContainerName = "bclicense"
 )
 
 $JsonPath = (join-path $DownloadFolder 'build.json')
