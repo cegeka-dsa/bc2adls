@@ -204,6 +204,12 @@ table 11007167 "ADLSE Setup"
 
 
         }
+        field(70; "Delayed Export"; Integer)
+        {
+            Caption = 'Delayed Export';
+            ToolTip = 'Specifies the delayed export time in seconds (0 = No delay).';
+            InitValue = 0;
+        }
 
     }
 
