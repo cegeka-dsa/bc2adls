@@ -13,6 +13,7 @@ codeunit 11007166 "ADLSE Execute"
         ADLSERun: Record "ADLSE Run";
         ADLSECurrentSession: Record "ADLSE Current Session";
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
+        ADLSETable: Record "ADLSE Table";
         ADLSECommunication: Codeunit "ADLSE Communication";
         ADLSEExecution: Codeunit "ADLSE Execution";
         ADLSEUtil: Codeunit "ADLSE Util";
@@ -41,11 +42,29 @@ codeunit 11007166 "ADLSE Execute"
         ADLSECurrentSession.Start(Rec."Table ID");
         ADLSERun.RegisterStarted(Rec."Table ID");
         Commit(); // to release locks on the "ADLSE Current Session" record thus allowing other sessions to check for it being active when they are nearing the last step.
+
         if EmitTelemetry then
             ADLSEExecution.Log('ADLSE-018', 'Registered session to export table', Verbosity::Normal, CustomDimensions);
 
         UpdatedLastTimestamp := ADLSETableLastTimestamp.GetUpdatedLastTimestamp(Rec."Table ID");
         DeletedLastEntryNo := ADLSETableLastTimestamp.GetDeletedLastEntryNo(Rec."Table ID");
+
+        if UpdatedLastTimestamp = 0 then
+            IsInitialRun := true;
+
+        ADLSETable.Get(Rec."Table ID");
+        ParallelProcessingEnabledForTable := ADLSETable.SplitInitialRunInSessions;
+
+        if ParallelProcessingEnabledForTable and IsInitialRun then begin
+            ADSLEParallelProcSetup.LockTable(true);
+            ADSLEParallelProcSetup.SetRange("Table ID", Rec."Table ID");
+            ADSLEParallelProcSetup.SetRange(SessionId, 0);
+            if ADSLEParallelProcSetup.FindFirst() then begin
+                ADSLEParallelProcSetup.SessionId := SessionId();
+                ADSLEParallelProcSetup.Modify();
+            end;
+            Commit(); // to release locks on the "ADLSE Table" record thus allowing other sessions to check for it being active when they are nearing the last step.
+        end;
 
         if EmitTelemetry then begin
             CustomDimensions.Add('Old Updated Last time stamp', Format(UpdatedLastTimestamp));
@@ -99,10 +118,13 @@ codeunit 11007166 "ADLSE Execute"
     end;
 
     var
-        TimestampAscendingSortViewTxt: Label 'Sorting(Timestamp) Order(Ascending)', Locked = true;
-        InsufficientReadPermErr: Label 'You do not have sufficient permissions to read from the table.';
+        ADSLEParallelProcSetup: Record "ADLSE Parallel Proc Setup";
         EmitTelemetry: Boolean;
         CDMDataFormat: Enum "ADLSE CDM Format";
+        InsufficientReadPermErr: Label 'You do not have sufficient permissions to read from the table.';
+        TimestampAscendingSortViewTxt: Label 'Sorting(Timestamp) Order(Ascending)', Locked = true;
+        IsInitialRun: Boolean;
+        ParallelProcessingEnabledForTable: Boolean;
 
     [TryFunction]
     local procedure TryExportTableData(TableID: Integer; var ADLSECommunication: Codeunit "ADLSE Communication";
@@ -138,12 +160,38 @@ codeunit 11007166 "ADLSE Execute"
     end;
 
     local procedure SetFilterForUpdates(TableID: Integer; UpdatedLastTimeStamp: BigInteger; SkipTimestampSorting: Boolean; var RecordRef: RecordRef; var TimeStampFieldRef: FieldRef)
+    var
+        EndRecordId: RecordId;
+        StartRecordId: RecordId;
+        RecordRefForEnd: RecordRef;
+        RecordRefForStart: RecordRef;
+        PkFieldRef: FieldRef;
+        FieldIndex: Integer;
+        Endvalue: Variant;
+        StartValue: Variant;
     begin
         RecordRef.Open(TableID);
         if not SkipTimestampSorting then
             RecordRef.SetView(TimestampAscendingSortViewTxt);
         TimeStampFieldRef := RecordRef.Field(0); // 0 is the TimeStamp field
         TimeStampFieldRef.SetFilter('>%1', UpdatedLastTimeStamp);
+
+        if ParallelProcessingEnabledForTable and IsInitialRun then begin
+            StartRecordId := ADSLEParallelProcSetup."Start RecordId";
+            EndRecordId := ADSLEParallelProcSetup."End RecordId";
+
+            RecordRefForStart := StartRecordId.GetRecord();
+            RecordRefForEnd := EndRecordId.GetRecord();
+
+            for FieldIndex := 1 to RecordRef.FieldCount() do begin
+                PkFieldRef := RecordRef.Field(FieldIndex);
+                StartValue := RecordRefForStart.Field(FieldIndex).Value();
+                EndValue := RecordRefForEnd.Field(FieldIndex).Value();
+
+                if Format(StartValue) <> '' then
+                    PkFieldRef.SetRange(StartValue, EndValue);
+            end;
+        end;
     end;
 
     local procedure ExportTableUpdates(TableID: Integer; FieldIdList: List of [Integer]; ADLSECommunication: Codeunit "ADLSE Communication"; var UpdatedLastTimeStamp: BigInteger)

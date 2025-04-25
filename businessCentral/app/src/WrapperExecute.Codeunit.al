@@ -1,4 +1,6 @@
-codeunit 82577 "ADLSE Wrapper Execute"
+namespace Zig.ADLSE;
+
+codeunit 11007178 "ADLSE Wrapper Execute"
 {
     Access = Internal;
     TableNo = "ADLSE Table";

@@ -1,10 +1,11 @@
 {
   "al.enableCodeAnalysis": true,
   "al.codeAnalyzers": [
-    "${CodeCop}",
-    "${UICop}",
-    "${PerTenantExtensionCop}",
-    "${analyzerFolder}BusinessCentral.LinterCop.dll"
+     "${CodeCop}",
+     "${UICop}",
+    // "${PerTenantExtensionCop}",
+     "${analyzerFolder}BusinessCentral.LinterCop.dll",
+     "${AppSourceCop}"
   ],
   "al.ruleSetPath": "./.vscode/custom.ruleset.json",
   "CRS.FileNamePattern": "<ObjectNameShort>.<ObjectTypeShortPascalCase>.al",

@@ -29,12 +29,12 @@ codeunit 11007173 "ADLSE Session Manager"
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'r')]
     local procedure StartExport(TableID: Integer; ExportWasPending: Boolean; ForceExport: Boolean; EmitTelemetry: Boolean) Started: Boolean
     var
-        ADLSETable: Record "ADLSE Table";
+        ADSLEParallelProcessingSetup: Record "ADLSE Parallel Proc Setup";
         ADLSESetup: Record "ADLSE Setup";
+        ADLSETable: Record "ADLSE Table";
         ADLSEExecution: Codeunit "ADLSE Execution";
         ADLSEUtil: Codeunit "ADLSE Util";
         CustomDimensions: Dictionary of [Text, Text];
-        NewSessionID: Integer;
         SessionTimeout: Duration;
     begin
         if ForceExport or DataChangesExist(TableID) then begin
@@ -47,23 +47,20 @@ codeunit 11007173 "ADLSE Session Manager"
                         exit;
 
             SessionTimeout := 1000 * 60 * 60 * 24; // 24 hours
-            Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Wrapper Execute", CompanyName(), ADLSETable, SessionTimeout);
-            CustomDimensions.Add('Entity', ADLSEUtil.GetTableCaption(TableID));
-            CustomDimensions.Add('ExportWasPending', Format(ExportWasPending));
-            if Started then begin
-                CustomDimensions.Add('SessionId', Format(NewSessionID));
-                if EmitTelemetry then
-                    ADLSEExecution.Log('ADLSE-002', 'Export session created', Verbosity::Normal, CustomDimensions);
 
-                if ExportWasPending then
-                    RemoveFromPendingTables(TableID); // remove because the export session was started
-            end else begin
-                if EmitTelemetry then
-                    ADLSEExecution.Log('ADLSE-025', 'Session.StartSession() failed', Verbosity::Warning, CustomDimensions);
+            // MAYBE DELETE THE WHOLE MANUAL SETUP AND JUST USE AN AUOMATED DIVDING FUNCION BASED ON 1 PK?!?!
+            if IsInitialRun(ADLSETable) and ADLSETable.SplitInitialRunInSessions then begin
+                ADSLEParallelProcessingSetup.SetRange("Table ID", TableID);
+                ADSLEParallelProcessingSetup.FindSet();
 
-                if not ExportWasPending then
-                    PushToPendingTables(TableID);
+                repeat
+                    Started := StartSession(ADLSETable, SessionTimeout, CustomDimensions, TableID, EmitTelemetry, ExportWasPending)
+                // the Started bool will be filled by the last session and returned, is that an issue or not, investigate. We could use pushtopending otherwise maybe.
+                until ADSLEParallelProcessingSetup.Next() = 0;
             end;
+
+            Started := StartSession(ADLSETable, SessionTimeout, CustomDimensions, TableID, EmitTelemetry, ExportWasPending);
+
         end else begin
             if ExportWasPending then
                 RemoveFromPendingTables(TableID); // remove because a previous export may have successful
@@ -74,6 +71,48 @@ codeunit 11007173 "ADLSE Session Manager"
             end;
         end;
     end;
+
+    local procedure StartSession(ADLSETable: Record "ADLSE Table"; SessionTimeout: Duration; CustomDimensions: Dictionary of [Text, Text]; TableID: Integer; EmitTelemetry: Boolean; ExportWasPending: Boolean) Started: Boolean
+    var
+        ADLSEUtil: Codeunit "ADLSE Util";
+        ADLSEExecution: Codeunit "ADLSE Execution";
+        NewSessionID: Integer;
+    begin
+        Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Wrapper Execute", CompanyName(), ADLSETable, SessionTimeout);
+        CustomDimensions.Add('Entity', ADLSEUtil.GetTableCaption(TableID));
+        CustomDimensions.Add('ExportWasPending', Format(ExportWasPending));
+        if Started then begin
+            CustomDimensions.Add('SessionId', Format(NewSessionID));
+            if EmitTelemetry then
+                ADLSEExecution.Log('ADLSE-002', 'Export session created', Verbosity::Normal, CustomDimensions);
+
+            if ExportWasPending then
+                RemoveFromPendingTables(TableID); // remove because the export session was started
+        end else begin
+            if EmitTelemetry then
+                ADLSEExecution.Log('ADLSE-025', 'Session.StartSession() failed', Verbosity::Warning, CustomDimensions);
+
+            if not ExportWasPending then
+                PushToPendingTables(TableID);
+        end;
+    end;
+
+    // Not used for now, only if we split the ranges by code instead of setup.
+    // local procedure SplitIntoSessions(ADLSETable: Record "ADLSE Table"; SessionTimeout: Duration; CustomDimensions: Dictionary of [Text, Text]; TableID: Integer; EmitTelemetry: Boolean; ExportWasPending: Boolean) Started: Boolean
+    // var
+    //     // ADLSEUtil: Codeunit "ADLSE Util";
+    //     // ADLSEExecution: Codeunit "ADLSE Execution";
+    //     TotalAmountOfRecords: Integer;
+    //     // ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
+    //     AmountOfRecordsPerSession: Integer;
+    //     FieldToUseForSplit: Text[250];
+    // begin
+    //     TotalAmountOfRecords := ADLSETable.Count();
+    //     AmountOfRecordsPerSession := Round(TotalAmountOfRecords / ADLSETable.SplitInitialRunInSessions, 0);
+    //     FieldToUseForSplit := ADLSETable.FieldToUseForSplit;
+
+    //     ADLSETable.setrang
+    // end;
 
     local procedure DataChangesExist(TableID: Integer): Boolean
     var
@@ -187,6 +226,16 @@ codeunit 11007173 "ADLSE Session Manager"
         foreach ValueText in TextValues do
             if Evaluate(ValueInt, ValueText) then
                 Values.Add(ValueInt);
+    end;
+
+    local procedure IsInitialRun(ADLSETable: Record "ADLSE Table"): Boolean
+    var
+        ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
+        UpdatedLastTimestamp: BigInteger;
+    begin
+        UpdatedLastTimestamp := ADLSETableLastTimestamp.GetUpdatedLastTimestamp(ADLSETable."Table ID");
+        if UpdatedLastTimestamp = 0 then
+            exit(true);
     end;
 
     internal procedure SavePendingTables(Value: Text)

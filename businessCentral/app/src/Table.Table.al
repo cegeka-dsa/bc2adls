@@ -66,6 +66,12 @@ table 11007171 "ADLSE Table"
             DataClassification = CustomerContent;
             ToolTip = 'Specifies the Export Category which can be linked to tables which are part of the export to Azure Datalake. The Category can be used to schedule the export.';
         }
+        field(12; SplitInitialRunInSessions; Boolean)
+        {
+            DataClassification = CustomerContent;
+            Caption = 'Split Initial Run In Sessions';
+            ToolTip = 'Specifies the number of sessions to be used for the initial processing of the table. This is only relevant for the initial processing of the table.';
+        }
     }
 
     keys

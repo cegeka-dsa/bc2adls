@@ -1,6 +1,7 @@
 namespace Zig.ADLSE;
 
 using System.Reflection;
+using app.app;
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -92,6 +93,14 @@ page 11007169 "ADLSE Setup Tables"
                 {
                     Caption = 'Export Category';
                     ApplicationArea = All;
+                }
+                field(SplitInitialRunInSessions; Rec.SplitInitialRunInSessions)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Split initial run in sessions';
+                    ToolTip = 'Specifies if the initial run should be split into sessions.';
+                    Editable = IsFirstRun;
+                    Visible = IsFirstRun;
                 }
             }
         }
@@ -245,6 +254,21 @@ page 11007169 "ADLSE Setup Tables"
                     CurrPage.Update();
                 end;
             }
+            action(OpenParallelProcessingSetupPage)
+            {
+                ApplicationArea = All;
+                Caption = 'Parallel Processing Setup';
+                ToolTip = 'Open the parallel processing setup page.';
+                Image = OpenInNewWindow;
+
+                trigger OnAction()
+                var
+                    ADLSEParallelProcSetup: Page "ADLSE Parallel Proc Setup";
+                begin
+                    ADLSEParallelProcSetup.RunModal();
+                    CurrPage.Update(false);
+                end;
+            }
         }
     }
 
@@ -276,6 +300,9 @@ page 11007169 "ADLSE Setup Tables"
             ADLSEntityName := '';
             Rec.Modify(true);
         end;
+        if UpdatedLastTimestamp = 0 then
+            IsFirstRun := true;
+
         ADLSERun.GetLastRunDetails(Rec."Table ID", LastRunState, LastStarted, LastRunError);
 
         IssueNotificationIfInvalidFieldsConfiguredToBeExported();
@@ -292,6 +319,7 @@ page 11007169 "ADLSE Setup Tables"
         LastStarted: DateTime;
         LastRunError: Text[2048];
         NoExportInProgress: Boolean;
+        IsFirstRun: Boolean;
         InvalidFieldConfiguredMsg: Label 'The following fields have been incorrectly enabled for exports in the table %1: %2', Comment = '%1 = table name; %2 = List of invalid field names';
         WarnOfSchemaChangeQst: Label 'Data may have been exported from this table before. Changing the export schema now may cause unexpected side- effects. You may reset the table first so all the data shall be exported afresh. Do you still wish to continue?';
 
