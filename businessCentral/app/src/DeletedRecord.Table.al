@@ -54,6 +54,9 @@ table 11007161 "ADLSE Deleted Record"
         if RecordRef.IsTemporary() then
             exit;
 
+        if RecordRef.CurrentCompany() <> CompanyName() then //workarround for records which are deleted usings changecompany
+            this.ChangeCompany(RecordRef.CurrentCompany());
+
         SystemIdFieldRef := RecordRef.Field(RecordRef.SystemIdNo());
         if IsNullGuid(SystemIdFieldRef.Value()) then
             exit;

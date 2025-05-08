@@ -47,7 +47,7 @@ codeunit 11007173 "ADLSE Session Manager"
                         exit;
 
             SessionTimeout := 1000 * 60 * 60 * 24; // 24 hours
-            Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Execute", CompanyName(), ADLSETable, SessionTimeout);
+            Started := Session.StartSession(NewSessionID, Codeunit::"ADLSE Wrapper Execute", CompanyName(), ADLSETable, SessionTimeout);
             CustomDimensions.Add('Entity', ADLSEUtil.GetTableCaption(TableID));
             CustomDimensions.Add('ExportWasPending', Format(ExportWasPending));
             if Started then begin
