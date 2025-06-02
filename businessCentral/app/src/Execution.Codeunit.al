@@ -191,7 +191,7 @@ codeunit 11007167 "ADLSE Execution"
 
     [InherentPermissions(PermissionObjectType::Table, Database::"ADLSE Table Last Timestamp", 'X')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'R')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, OnAfterGetDatabaseTableTriggerSetup, '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, OnAfterGetDatabaseTableTriggerSetup, '', false, false)]
     local procedure GetDatabaseTableTriggerSetup(TableId: Integer; var OnDatabaseInsert: Boolean; var OnDatabaseModify: Boolean; var OnDatabaseDelete: Boolean; var OnDatabaseRename: Boolean)
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
@@ -205,10 +205,12 @@ codeunit 11007167 "ADLSE Execution"
     end;
 
     [InherentPermissions(PermissionObjectType::Table, Database::"ADLSE Table Last Timestamp", 'X')]
+    [InherentPermissions(PermissionObjectType::Table, Database::"ADLSE Deleted Record", 'X')]
+    [InherentPermissions(PermissionObjectType::Table, Database::"Deleted Tables Not to Sync", 'X')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table Last Timestamp", 'R')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Deleted Record", 'RI')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"Deleted Tables Not to Sync", 'r')]
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, OnAfterOnDatabaseDelete, '', true, true)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::GlobalTriggerManagement, OnAfterOnDatabaseDelete, '', false, false)]
     local procedure OnAfterOnDatabaseDelete(RecRef: RecordRef)
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
@@ -217,6 +219,9 @@ codeunit 11007167 "ADLSE Execution"
     begin
         if RecRef.Number = Database::"ADLSE Deleted Record" then
             exit;
+
+        if RecRef.CurrentCompany() <> CompanyName() then //workarround for records which are deleted usings changecompany
+            ADLSETableLastTimestamp.ChangeCompany(RecRef.CurrentCompany());
 
         if DeletedTablesNottoSync.Get(RecRef.Number) then
             exit;
