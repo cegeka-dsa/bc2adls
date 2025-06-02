@@ -15,4 +15,8 @@ enum 11007164 "ADLSE Storage Type"
     {
         Caption = 'Microsoft Fabric';
     }
+    value(2; "Open Mirroring")
+    {
+        Caption = 'Microsoft Fabric - Open Mirroring';
+    }
 }
