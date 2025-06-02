@@ -66,6 +66,11 @@ table 11007171 "ADLSE Table"
             DataClassification = CustomerContent;
             ToolTip = 'Specifies the Export Category which can be linked to tables which are part of the export to Azure Datalake. The Category can be used to schedule the export.';
         }
+        field(15; ExportFileNumber; Integer)
+        {
+            Caption = 'Export File Number';
+            AllowInCustomizations = Always;
+        }
     }
 
     keys
@@ -229,6 +234,9 @@ table 11007171 "ADLSE Table"
                 ADLSESetup.GetSingleton();
                 if (ADLSESetup."Delete Table") then
                     ADLSECommunication.ResetTableExport(Rec."Table ID", AllCompanies);
+
+                Rec.ExportFileNumber := 1;
+                Rec.Modify(true);
 
                 OnAfterResetSelected(Rec);
 
