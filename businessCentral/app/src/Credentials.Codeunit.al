@@ -111,7 +111,7 @@ codeunit 11007164 "ADLSE Credentials"
     local procedure SetSecret(KeyName: Text; Secret: Text)
     begin
 #pragma warning disable LC0043
-        if EncryptionEnabled() then begin
+        if EncryptionEnabled() and EncryptionKeyExists() then begin
             IsolatedStorage.SetEncrypted(KeyName, Secret, IsolatedStorageDataScope());
             exit;
         end;

@@ -87,9 +87,11 @@ codeunit 11007174 "ADLSE Setup"
     begin
         ADLSESetup.GetSingleton();
         if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Azure Data Lake" then
-            ADLSESetup.TestField(Container)
-        else
+            ADLSESetup.TestField(Container);
+        if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Microsoft Fabric" then
             ADLSESetup.TestField(Workspace);
+        if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then
+            ADLSESetup.TestField(LandingZone);
 
         ADLSESetup.CheckSchemaExported();
 
