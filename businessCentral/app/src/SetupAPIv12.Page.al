@@ -13,7 +13,7 @@ page 11007166 "ADLSE Setup API v12"
     SourceTable = "ADLSE Setup";
     InsertAllowed = false;
     DeleteAllowed = false;
-    ModifyAllowed = false;
+    ModifyAllowed = true;
     ODataKeyFields = SystemId;
 
     layout
@@ -22,7 +22,10 @@ page 11007166 "ADLSE Setup API v12"
         {
             repeater(GroupName)
             {
-                field(primaryKey; Rec."Primary Key") { }
+                field(primaryKey; Rec."Primary Key")
+                {
+                    Editable = false;
+                }
                 field(container; Rec.Container) { }
                 field(emitTelemetry; Rec."Emit telemetry") { }
                 field(dataFormat; Rec.DataFormat) { }
@@ -31,6 +34,7 @@ page 11007166 "ADLSE Setup API v12"
                 {
                     Editable = false;
                 }
+                field(skipTimestampSorting; Rec."Skip Timestamp Sorting On Recs") { }
                 field(exportEnumasInteger; Rec."Export Enum as Integer") { }
                 field(id; Rec.SystemId)
                 {
