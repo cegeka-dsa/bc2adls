@@ -11,7 +11,8 @@ permissionset 11007164 "ADLSE - API"
     Assignable = true;
     Caption = 'ADLS - Api', MaxLength = 30;
 
-    Permissions = tabledata "ADLSE Table" = RMI,
+    Permissions = table "ADLSE Setup" = x,
+                  tabledata "ADLSE Table" = RMI,
                   tabledata "ADLSE Setup" = R,
                   tabledata "ADLSE Current Session" = R,
                   tabledata "ADLSE Run" = R,

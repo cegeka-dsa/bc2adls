@@ -11,7 +11,8 @@ permissionset 11007160 "ADLSE - Execute"
     Assignable = true;
     Caption = 'ADLS - Execute', MaxLength = 30;
 
-    Permissions = tabledata "ADLSE Setup" = RM,
+    Permissions = table "ADLSE Setup" = x,
+                  tabledata "ADLSE Setup" = RM,
                   tabledata "ADLSE Table" = RM,
                   tabledata "ADLSE Field" = R,
                   tabledata "ADLSE Deleted Record" = R,
