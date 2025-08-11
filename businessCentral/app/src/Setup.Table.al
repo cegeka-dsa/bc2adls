@@ -121,8 +121,10 @@ table 11007167 "ADLSE Setup"
             var
                 OpenMirroringPreviewLbl: label 'Microsoft Fabric - Open Mirroring connection in bc2adls is still in preview. Please use it with caution.';
             begin
-                if Rec."Storage Type" = Rec."Storage Type"::"Open Mirroring" then
+                if Rec."Storage Type" = Rec."Storage Type"::"Open Mirroring" then begin
+                    Rec."Delete Table" := true;
                     Message(OpenMirroringPreviewLbl);
+                end;
             end;
         }
 
@@ -222,6 +224,18 @@ table 11007167 "ADLSE Setup"
             Caption = 'Delayed Export';
             ToolTip = 'Specifies the delayed export time in seconds (0 = No delay).';
             InitValue = 0;
+        }
+        field(75; "Use Field Captions"; Boolean)
+        {
+            Caption = 'Use Captions';
+            ToolTip = 'Specifies if the captions of fields will be used instead of names.';
+            InitValue = false;
+        }
+        field(80; "Use IDs for Duplicates Only"; Boolean)
+        {
+            Caption = 'IDs for Duplicates Only';
+            ToolTip = 'Specifies that table and field IDs will only be used in names if duplicates exist.';
+            InitValue = false;
         }
     }
 

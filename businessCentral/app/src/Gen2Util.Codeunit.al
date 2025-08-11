@@ -286,7 +286,7 @@ codeunit 11007170 "ADLSE Gen 2 Util"
         ADLSESetup: Record "ADLSE Setup";
         BlobTotalContentSize: BigInteger;
     begin
-        if ADLSESetup.GetStorageType() <> ADLSESetup."Storage Type"::"Microsoft Fabric" then
+        if ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Azure Data Lake" then
             exit(false);
 
         // To prevent a overflow, use a BigInterger to calculate the total value
@@ -294,8 +294,14 @@ codeunit 11007170 "ADLSE Gen 2 Util"
         BlobTotalContentSize += PayloadLength;
 
         // Microsoft Fabric has a limit of 2 GB (2147483647) for a blob.
-        if BlobTotalContentSize < 2147483647 then
-            exit(false);
+        if ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Microsoft Fabric" then
+            if BlobTotalContentSize < 2147483647 then
+                exit(false);
+
+        // Microsoft Fabric Open Mirroring cannot append data because it is reading directly.
+        if ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Open Mirroring" then
+            if BlobTotalContentSize < (ADLSESetup.MaxPayloadSizeMiB * 1024 * 1024) then
+                exit(false);
 
         exit(true);
     end;
@@ -334,6 +340,35 @@ codeunit 11007170 "ADLSE Gen 2 Util"
         end;
     end;
 
+    procedure DropTableFromOpenMirroring(ADLSEntityName: Text; ADLSECredentials: Codeunit "ADLSE Credentials"; AllCompanies: Boolean)
+    var
+        ADLSESetup: Record "ADLSE Setup";
+        ADLSEHttp: Codeunit "ADLSE Http";
+        IsHandled: Boolean;
+        Response: Text;
+        Url: Text;
+    begin
+        // DELETE https://onelake.dfs.fabric.microsoft.com/{CONTAINER_ID}/{MIRRORED_DATABASE_ID}/Files/LandingZone/{FOLDER_NAME}?recursive=true
+        // https://learn.microsoft.com/en-us/fabric/database/mirrored-database/open-mirroring-landing-zone-format#drop-table
+        ADLSESetup.GetSingleton();
+
+        OnBeforeDropTableFromOpenMirroring(ADLSEntityName, ADLSECredentials, AllCompanies, IsHandled);
+        if IsHandled then
+            exit;
+
+
+        if AllCompanies then begin
+            Url := ADLSESetup.LandingZone;
+            Url += '/' + ADLSEntityName + '?recursive=true';
+
+            ADLSEHttp.SetMethod("ADLSE Http Method"::Delete);
+            ADLSEHttp.SetUrl(Url);
+            ADLSEHttp.SetAuthorizationCredentials(ADLSECredentials);
+            ADLSEHttp.InvokeRestApi(Response)
+        end;
+    end;
+
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetBlobContent(BlobPath: Text; ADLSECredentials: Codeunit "ADLSE Credentials"; var BlobExists: Boolean; var Content: JsonObject; var IsHandled: Boolean)
     begin
@@ -361,6 +396,11 @@ codeunit 11007170 "ADLSE Gen 2 Util"
 
     [Integrationevent(false, false)]
     local procedure OnBeforeRemoveDeltasFromDataLake(ADLSEntityName: Text; ADLSECredentials: Codeunit "ADLSE Credentials"; AllCompanies: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Integrationevent(false, false)]
+    local procedure OnBeforeDropTableFromOpenMirroring(ADLSEntityName: Text; ADLSECredentials: Codeunit "ADLSE Credentials"; AllCompanies: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

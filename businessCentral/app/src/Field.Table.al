@@ -109,6 +109,7 @@ table 11007165 "ADLSE Field"
     begin
         Field.SetRange(TableNo, ADLSETable."Table ID");
         Field.SetFilter("No.", '<%1', 2000000000); // no system fields
+        Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
 
         if Field.FindSet() then
             repeat
