@@ -23,6 +23,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
 
     procedure CreateEntityContent(TableID: Integer; FieldIdList: List of [Integer]) Content: JsonObject
     var
+        ADLSESetup: Record "ADLSE Setup";
         ADLSEUtil: Codeunit "ADLSE Util";
         Definition: JsonObject;
         Definitions: JsonArray;
@@ -30,6 +31,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         Imports: JsonArray;
         EntityName: Text;
     begin
+        ADLSESetup.GetSingleton();
         Content.Add('jsonSchemaSemanticVersion', '1.0.0');
         Import.Add('corpusPath', 'cdm:/foundations.cdm.json');
         Imports.Add(Import);
@@ -37,7 +39,10 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         EntityName := ADLSEUtil.GetDataLakeCompliantTableName(TableID);
         Definition.Add('entityName', EntityName);
         Definition.Add('exhibitsTraits', BlankArray);
-        Definition.Add('displayName', ADLSEUtil.GetTableName(TableID));
+        if ADLSESetup."Use Table Captions" then
+            Definition.Add('displayName', ADLSEUtil.GetTableCaption(TableID))
+        else
+            Definition.Add('displayName', ADLSEUtil.GetTableName(TableID));
         Definition.Add('description', StrSubstNo(RepresentsTableTxt, ADLSEUtil.GetTableName(TableID)));
         Definition.Add('hasAttributes', CreateAttributes(TableID, FieldIdList));
         Definitions.Add(Definition);
@@ -50,6 +55,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         ADLSEUtil: Codeunit "ADLSE Util";
         ADLSEExecute: Codeunit "ADLSE Execute";
         RecordRef: RecordRef;
+        SystemIdFieldRef: FieldRef;
         FieldRef: FieldRef;
         FieldIdList: List of [Integer];
         FieldId: Integer;
@@ -62,12 +68,10 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         RecordRef.Open(TableID);
         FieldIdList := ADLSEExecute.CreateFieldListForTable(TableID);
 
-        FieldRef := RecordRef.Field(2000000000);
-        if ADLSEUtil.IsTablePerCompany(TableID) then begin
-            Imports.Add(ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef));
+        SystemIdFieldRef := RecordRef.Field(2000000000);
+        Imports.Add(ADLSEUtil.GetDataLakeCompliantFieldName(SystemIdFieldRef));
+        if ADLSEUtil.IsTablePerCompany(TableID) then
             Imports.Add(this.GetCompanyFieldName());
-        end else
-            Imports.Add(ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef));
         Content.Add('keyColumns', Imports);
 
         ADLSESetup.GetSingleton();
@@ -77,7 +81,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
             Column.Add('Name', ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef));
             if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then begin
                 Column.Add('DataType', GetOpenMirrorDataFormat(FieldRef.Type));
-                if (FieldRef.Number <> RecordRef.SystemIdNo()) and (GetOpenMirrorDataFormat(FieldRef.Type) <> GetCDMDataFormat_String()) then
+                if (FieldRef.Number <> RecordRef.SystemIdNo()) then
                     Column.Add('IsNullable', true);
             end else
                 Column.Add('DataType', GetFabricDataFormat(FieldRef.Type));
