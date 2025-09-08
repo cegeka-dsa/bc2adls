@@ -107,9 +107,12 @@ codeunit 11007167 "ADLSE Execution"
 
         ADLSETable.Reset();
         ADLSETable.SetRange(Enabled, true);
-        if ADLSETable.FindSet(false) then
-            if GuiAllowed() then
-                ProgressWindowDialog.Open(Progress1Msg);
+        if not ADLSETable.FindSet(false) then
+            exit;
+
+        if GuiAllowed() then
+            ProgressWindowDialog.Open(Progress1Msg);
+
         repeat
             if GuiAllowed() then begin
                 AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
@@ -130,6 +133,11 @@ codeunit 11007167 "ADLSE Execution"
         ADLSESetup.Modify(true);
 
         ADLSEExternalEvents.OnExportSchema(ADLSESetup);
+    end;
+
+    internal procedure ClearSchemaExportedOn(ErrInfo: ErrorInfo)
+    begin
+        ClearSchemaExportedOn();
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'm')]

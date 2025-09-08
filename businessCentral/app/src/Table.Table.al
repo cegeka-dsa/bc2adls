@@ -218,20 +218,31 @@ table 11007171 "ADLSE Table"
                     Rec.Enabled := true;
                     Rec.Modify(true);
                 end;
+                ADLSESetup.GetSingleton();
 
                 if not AllCompanies then begin
-                    ADLSETableLastTimestamp.SaveUpdatedLastTimestamp(Rec."Table ID", 0);
-                    ADLSETableLastTimestamp.SaveDeletedLastEntryNo(Rec."Table ID", 0);
-                end else begin
-                    ADLSETableLastTimestamp.SetRange("Table ID", rec."Table ID");
-                    ADLSETableLastTimestamp.ModifyAll("Updated Last Timestamp", 0);
-                    ADLSETableLastTimestamp.ModifyAll("Deleted Last Entry No.", 0);
-                    ADLSETableLastTimestamp.SetRange("Table ID");
-                end;
+                    if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then begin
+                        if ADLSETableLastTimestamp.Get(CompanyName, Rec."Table ID") then
+                            ADLSETableLastTimestamp.Delete();
+                    end
+                    else begin
+                        ADLSETableLastTimestamp.SaveUpdatedLastTimestamp(Rec."Table ID", 0);
+                        ADLSETableLastTimestamp.SaveDeletedLastEntryNo(Rec."Table ID", 0);
+                    end;
+                end else
+                    if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then begin
+                        ADLSETableLastTimestamp.SetRange("Table ID", rec."Table ID");
+                        ADLSETableLastTimestamp.DeleteAll();
+                    end
+                    else begin
+                        ADLSETableLastTimestamp.SetRange("Table ID", rec."Table ID");
+                        ADLSETableLastTimestamp.ModifyAll("Updated Last Timestamp", 0);
+                        ADLSETableLastTimestamp.ModifyAll("Deleted Last Entry No.", 0);
+                        ADLSETableLastTimestamp.SetRange("Table ID");
+                    end;
                 ADLSEDeletedRecord.SetRange("Table ID", Rec."Table ID");
                 ADLSEDeletedRecord.DeleteAll(false);
 
-                ADLSESetup.GetSingleton();
                 if (ADLSESetup."Delete Table") then
                     ADLSECommunication.ResetTableExport(Rec."Table ID", AllCompanies);
 
@@ -272,6 +283,7 @@ table 11007171 "ADLSE Table"
         ADLSEUtil: Codeunit "ADLSE Util";
         ADLSEExecution: Codeunit "ADLSE Execution";
         CustomDimensions: Dictionary of [Text, Text];
+        RemovedFieldNameLbl: Label '#[%1]', Locked = true;
     begin
         ADLSEField.SetRange("Table ID", Rec."Table ID");
         ADLSEField.SetRange(Enabled, true);
@@ -279,7 +291,7 @@ table 11007171 "ADLSE Table"
             repeat
                 if not ADLSESetup.CanFieldBeExported(ADLSEField."Table ID", ADLSEField."Field ID") then begin
                     ADLSEField.CalcFields(FieldCaption);
-                    FieldList.Add(ADLSEField.FieldCaption);
+                    FieldList.Add(ADLSEField.FieldCaption <> '' ? ADLSEField.FieldCaption : StrSubstNo(RemovedFieldNameLbl, ADLSEField."Field ID"));
                 end;
             until ADLSEField.Next() = 0;
 
