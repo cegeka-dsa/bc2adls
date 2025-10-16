@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-table 82580 "Session Instruction"
+table 11007180 "Session Instruction"
 {
     Caption = 'Session Instruction';
     DataClassification = CustomerContent;
@@ -125,8 +127,8 @@ table 82580 "Session Instruction"
         if not SessionInstruction.FindSet() then
             exit;
         repeat
-        if not IsSessionActive(SessionInstruction."Session Id") then
-            SessionInstruction.Delete();
+            if not IsSessionActive(SessionInstruction."Session Id") then
+                SessionInstruction.Delete();
         until SessionInstruction.Next() = 0;
     end;
 

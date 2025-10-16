@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-enum 82580 "ADLSE Process Type"
+enum 11007163 "ADLSE Process Type"
 {
     Access = Internal;
     Extensible = false;

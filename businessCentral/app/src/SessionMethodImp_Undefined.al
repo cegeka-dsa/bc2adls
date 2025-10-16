@@ -1,6 +1,8 @@
+namespace Zig.ADLSE;
+
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-codeunit 82581 "ADLSE Method Imp. Undefined" implements "ADLSE Session Method Interface"
+codeunit 11007181 "ADLSE Method Imp. Undefined" implements "ADLSE Session Method Interface"
 {
     var
         UndefinedMethodErr: Label 'Method not defined';
