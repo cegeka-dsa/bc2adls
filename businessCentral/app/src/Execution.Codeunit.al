@@ -26,6 +26,10 @@ codeunit 11007167 "ADLSE Execution"
     var
         ADLSETable: Record "ADLSE Table";
     begin
+#if not CLEAN27
+        // Exports marked for Commit Externally should be processed via dedicated job queue due to SaaS background session operations limits.
+        ADLSETable.SetFilter("Process Type", '<>%1', ADLSETable."Process Type"::"Commit Externally");
+#endif
         StartExport(ADLSETable);
     end;
 

@@ -73,6 +73,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         if ADLSEUtil.IsTablePerCompany(TableID) then
             Imports.Add(this.GetCompanyFieldName());
         Content.Add('keyColumns', Imports);
+        Content.Add('fileDetectionStrategy', 'LastUpdateTimeFileDetection');
 
         ADLSESetup.GetSingleton();
         foreach FieldId in FieldIdList do begin
