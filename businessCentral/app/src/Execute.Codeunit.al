@@ -29,6 +29,8 @@ codeunit 11007166 "ADLSE Execute"
         ManifestJsonsNeedsUpdate: Boolean;
         ExportSuccess: Boolean;
     begin
+        Database.SelectLatestVersion();
+
         ADLSESetup.GetSingleton();
         EmitTelemetry := ADLSESetup."Emit telemetry";
         CDMDataFormat := ADLSESetup.DataFormat;
@@ -241,7 +243,7 @@ codeunit 11007166 "ADLSE Execute"
                         ADLSEExecution.Log('ADLSE-023', 'Skipping record in delay window', Verbosity::Normal, CustomDimensions);
                     end;
 
-                if CollectedAndSent then 
+                if CollectedAndSent then
                     NoMoreToCollect := RecordRef.Next() = 0;
             until (not CollectedAndSent or NoMoreToCollect);
 
@@ -441,7 +443,7 @@ codeunit 11007166 "ADLSE Execute"
                     exit;
                 end;
         end;
-        
+
         if TimestampUpdated then
             if EmitTelemetry then begin
                 Clear(CustomDimensions);
