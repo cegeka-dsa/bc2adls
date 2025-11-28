@@ -29,7 +29,7 @@ codeunit 11007166 "ADLSE Execute"
         ManifestJsonsNeedsUpdate: Boolean;
         ExportSuccess: Boolean;
     begin
-        Database.SelectLatestVersion();
+        SelectLatestVersion(Rec."Table ID");
 
         ADLSESetup.GetSingleton();
         EmitTelemetry := ADLSESetup."Emit telemetry";
