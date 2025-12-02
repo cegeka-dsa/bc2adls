@@ -400,6 +400,17 @@ table 11007171 "ADLSE Table"
     [IntegrationEvent(false, false)]
     local procedure OnAfterResetSelected(ADLSETable: Record "ADLSE Table")
     begin
-
     end;
+
+#if not CLEAN27
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure CheckIfNeedToCommitExternally(TableIdToUpdate: integer): Boolean
+    begin
+    end;
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure CheckIfNeedToIgnoreReadIsolation(TableIdToUpdate: integer): Boolean
+    begin
+    end;
+#endif
 }

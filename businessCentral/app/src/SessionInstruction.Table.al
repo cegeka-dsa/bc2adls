@@ -6,7 +6,9 @@ table 11007180 "Session Instruction"
     Caption = 'Session Instruction';
     DataClassification = CustomerContent;
     ObsoleteState = Pending;
-    ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
+    ObsoleteReason = 'This table will be removed in a future release because readuncommitted will be the default behavior because of performance.';
+    ObsoleteTag = '27.44';
+
     fields
     {
         field(1; "Session Id"; Integer)
@@ -51,4 +53,34 @@ table 11007180 "Session Instruction"
             Clustered = true;
         }
     }
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure ExecuteInNewSession()
+    begin
+    end;
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure WaitForSession(NewSessionId: Integer; SessionStartTime: DateTime; SessionTimeout: Duration) SessionFound: Boolean;
+    begin
+    end;
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure RemoveSessionAndError(ErrorMessage: Text; Reason: Text)
+    begin
+    end;
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure DeleteStaleSessions()
+    begin
+    end;
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure CanInsertNewSession(NewSessionId: Integer): Boolean
+    begin
+    end;
+
+    [Obsolete('This procedure will be removed in a future release because readuncommitted will be the default behavior because of performance.', '27.44')]
+    procedure Timeout(): Duration
+    begin
+    end;
 }
