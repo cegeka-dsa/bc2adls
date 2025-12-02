@@ -84,14 +84,6 @@ table 11007171 "ADLSE Table"
             ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
             ToolTip = 'Specifies how this table should be processed during export. Standard uses normal processing, Ignore Read Isolation disables read isolation for performance, and Commit Externally uses external commit for large tables.';
         }
-#if not CLEAN27
-        field(16; "Process Type"; Enum "ADLSE Process Type")
-        {
-            Caption = 'Process Type';
-            DataClassification = CustomerContent;
-            ToolTip = 'Specifies how this table should be processed during export. Standard uses normal processing, Ignore Read Isolation disables read isolation for performance, and Commit Externally uses external commit for large tables.';
-        }
-#endif
     }
 
     keys
