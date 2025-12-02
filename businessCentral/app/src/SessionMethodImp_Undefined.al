@@ -4,6 +4,9 @@ namespace Zig.ADLSE;
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 codeunit 11007165 "ADLSE Method Imp. Undefined" implements "ADLSE Session Method Interface"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
+
     var
         UndefinedMethodErr: Label 'Method not defined';
         InvalidParametersErr: Label 'Invalid or missing parameters for method %1', Comment = '%1 = Method name';
