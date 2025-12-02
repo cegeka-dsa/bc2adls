@@ -400,8 +400,9 @@ codeunit 11007166 "ADLSE Execute"
             if EmitTelemetry then
                 ADLSEExecution.Log('ADLSE-041', 'All exports are finished', Verbosity::Normal);
         end;
+    end;
 
-procedure UpdateInProgressTableTimestamp(var Rec: Record "ADLSE Table"; LastTimestamp: BigInteger; Deletes: Boolean)
+    procedure UpdateInProgressTableTimestamp(var Rec: Record "ADLSE Table"; LastTimestamp: BigInteger; Deletes: Boolean)
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
         ADLSEExecution: Codeunit "ADLSE Execution";
