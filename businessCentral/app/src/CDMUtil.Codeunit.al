@@ -13,6 +13,7 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         BlankArray: JsonArray;
         CompanyFieldNameLbl: Label '$Company', Locked = true;
         DeliveredDateTimeFieldNameLbl: Label '$DeliveredDateTime', Locked = true;
+        ClosingDateFieldNameLbl: Label '$ClosingDate', Locked = true;
         ExistingFieldCannotBeRemovedErr: Label 'The field %1 in the entity %2 is already present in the data lake and cannot be removed.', Comment = '%1: field name, %2: entity name';
         FieldDataTypeCannotBeChangedErr: Label 'The data type for the field %1 in the entity %2 cannot be changed.', Comment = '%1: field name, %2: entity name';
         RepresentsTableTxt: Label 'Represents the table %1', Comment = '%1: table caption';
@@ -80,12 +81,32 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
             FieldRef := RecordRef.Field(FieldId);
             Clear(Column);
             Column.Add('Name', ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef));
-            if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then begin
-                Column.Add('DataType', GetOpenMirrorDataFormat(FieldRef.Type));
-                if (FieldRef.Number <> RecordRef.SystemIdNo()) then
-                    Column.Add('IsNullable', true);
-            end else
-                Column.Add('DataType', GetFabricDataFormat(FieldRef.Type));
+            Column.Add('DataType', GetOpenMirrorDataFormat(FieldRef.Type));
+            if (FieldRef.Number <> RecordRef.SystemIdNo()) then
+                Column.Add('IsNullable', true);
+            Columns.Add(Column);
+        end;
+
+        if ADLSEUtil.IsTablePerCompany(TableID) then begin
+            Clear(Column);
+            Column.Add('Name', GetCompanyFieldName());
+            Column.Add('DataType', GetOpenMirrorDataFormat(FieldType::Text));
+            Columns.Add(Column);
+        end;
+
+        if (RecordRef.Number() = Database::"G/L Entry") and (ADLSESetup."Export Closing Date column") then begin
+            Clear(Column);
+            Column.Add('Name', GetClosingDateFieldName());
+            Column.Add('DataType', GetOpenMirrorDataFormat(FieldType::Boolean));
+            Column.Add('IsNullable', true);
+            Columns.Add(Column);
+        end;
+
+        if ADLSESetup."Delivered DateTime" then begin
+            Clear(Column);
+            Column.Add('Name', GetDeliveredDateTimeFieldName());
+            Column.Add('DataType', GetOpenMirrorDataFormat(FieldType::DateTime));
+            Column.Add('IsNullable', true);
             Columns.Add(Column);
         end;
 
@@ -202,10 +223,17 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
             Result.Add(
                 CreateAttributeJson(GetCompanyFieldName(), DataFormat, GetCompanyFieldName(), AppliedTraits, GetCompanyFieldNameLength(), false));
         end;
+
+        if (RecordRef.Number() = Database::"G/L Entry") and (ADLSESetup."Export Closing Date column") then begin
+            GetCDMAttributeDetails(FieldType::Boolean, DataFormat, AppliedTraits);
+            Result.Add(
+                CreateAttributeJson(GetClosingDateFieldName(), DataFormat, GetClosingDateFieldName(), AppliedTraits, FieldRef.Length(), false));
+        end;
+
         if ADLSESetup."Delivered DateTime" then begin
             GetCDMAttributeDetails(FieldType::DateTime, DataFormat, AppliedTraits);
             Result.Add(
-                CreateAttributeJson(GetDeliveredDateTimeFieldName(), DataFormat, GetDeliveredDateTimeFieldName(), AppliedTraits, FieldRef.Length, false));
+                CreateAttributeJson(GetDeliveredDateTimeFieldName(), DataFormat, GetDeliveredDateTimeFieldName(), AppliedTraits, FieldRef.Length(), false));
         end;
     end;
 
@@ -224,6 +252,11 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
     procedure GetDeliveredDateTimeFieldName(): Text
     begin
         exit(DeliveredDateTimeFieldNameLbl);
+    end;
+
+    procedure GetClosingDateFieldName(): Text
+    begin
+        exit(ClosingDateFieldNameLbl);
     end;
 
     procedure IsPrimaryKeyField(TableId: Integer; FieldId: Integer): Boolean
@@ -454,14 +487,14 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
             FieldType::Decimal:
                 exit('Double');
             FieldType::Duration:
-                exit('Int32');
+                exit(GetCDMDataFormat_String());
             FieldType::Integer:
                 exit('Int32');
             FieldType::Option:
                 begin
                     ADLSESetup.GetSingleton();
                     if ADLSESetup."Export Enum as Integer" then
-                        exit('Int16')
+                        exit('Int32')
                     else
                         exit(GetCDMDataFormat_String());
                 end;

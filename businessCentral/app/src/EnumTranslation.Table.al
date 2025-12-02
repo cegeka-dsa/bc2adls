@@ -17,7 +17,7 @@ table 11007162 "ADLSE Enum Translation"
     {
         field(1; "Table Id"; Integer)
         {
-            AllowInCustomizations = Always;
+            AllowInCustomizations = AsReadOnly;
             DataClassification = SystemMetadata;
             Caption = 'Table Id';
         }
@@ -29,7 +29,7 @@ table 11007162 "ADLSE Enum Translation"
         }
         field(3; "Field Id"; Integer)
         {
-            AllowInCustomizations = Always;
+            AllowInCustomizations = AsReadOnly;
             DataClassification = SystemMetadata;
             Caption = 'Field Id';
         }

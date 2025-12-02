@@ -160,9 +160,9 @@ codeunit 11007177 "ADLSE Util"
             AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Table);
             AllObjWithCaption.SetFilter("Object ID", '<>%1', TableID);
             if ADLSESetup."Use Table Captions" then
-                AllObjWithCaption.SetFilter("Object Caption", OrigTableName)
+                AllObjWithCaption.SetRange("Object Caption", OrigTableName)
             else
-                AllObjWithCaption.SetFilter("Object Name", OrigTableName);
+                AllObjWithCaption.SetRange("Object Name", OrigTableName);
             if AllObjWithCaption.IsEmpty() then // there is not a duplicate table caption
                 exit(GetDataLakeCompliantName(OrigTableName))
             else
@@ -419,6 +419,9 @@ codeunit 11007177 "ADLSE Util"
         if IsTablePerCompany(RecordRef.Number) then
             Payload.Append(StrSubstNo(CommaPrefixedTok, ADLSECDMUtil.GetCompanyFieldName()));
 
+        if (RecordRef.Number() = Database::"G/L Entry") and (ADLSESetup."Export Closing Date column") then
+            Payload.Append(StrSubstNo(CommaPrefixedTok, ADLSECDMUtil.GetClosingDateFieldName()));
+
         if ADLSESetup."Delivered DateTime" then
             Payload.Append(StrSubstNo(CommaPrefixedTok, ADLSECDMUtil.GetDeliveredDateTimeFieldName()));
 
@@ -432,9 +435,9 @@ codeunit 11007177 "ADLSE Util"
     procedure CreateCsvPayload(RecordRef: RecordRef; FieldIdList: List of [Integer]; AddHeaders: Boolean; Deletes: Boolean) RecordPayload: Text
     var
         ADLSESetup: Record "ADLSE Setup";
-        ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
         FieldRef: FieldRef;
         CurrDateTime: DateTime;
+        PostingDate: Date;
         FieldID: Integer;
         FieldsAdded: Integer;
         FieldTextValue: Text;
@@ -461,6 +464,17 @@ codeunit 11007177 "ADLSE Util"
         end;
         if IsTablePerCompany(RecordRef.Number) then
             Payload.Append(StrSubstNo(CommaPrefixedTok, ConvertStringToText(CompanyName())));
+
+        if (RecordRef.Number() = Database::"G/L Entry") and (ADLSESetup."Export Closing Date column") then begin
+            //Field 4 is Posting Date
+            FieldRef := RecordRef.Field(4);
+            PostingDate := FieldRef.Value();
+            if PostingDate <> ClosingDate(PostingDate) then
+                Payload.Append(StrSubstNo(CommaPrefixedTok, 'false'))
+            else
+                Payload.Append(StrSubstNo(CommaPrefixedTok, 'true'));
+        end;
+
         if ADLSESetup."Delivered DateTime" then
             Payload.Append(StrSubstNo(CommaPrefixedTok, ConvertDateTimeToText(CurrDateTime)));
 

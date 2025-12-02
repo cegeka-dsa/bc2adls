@@ -133,6 +133,11 @@ page 11007169 "ADLSE Setup Tables"
                     Caption = 'Export Category';
                     ApplicationArea = All;
                 }
+                field("Initial Load Start Date"; Rec."Initial Load Start Date")
+                {
+                    Caption = 'Initial Load Start Date';
+                    ApplicationArea = All;
+                }
             }
         }
     }
@@ -199,6 +204,7 @@ page 11007169 "ADLSE Setup Tables"
                 var
                     SelectedADLSETable: Record "ADLSE Table";
                     ADLSESetup: Record "ADLSE Setup";
+                    ADLSEExecution: Codeunit "ADLSE Execution";
                     Options: Text[50];
                     OptionStringLbl: Label 'Current Company,All Companies';
                     ResetTablesForAllCompaniesQst: Label 'Do you want to reset the selected tables for all companies?';
@@ -225,6 +231,9 @@ page 11007169 "ADLSE Setup Tables"
                         else
                             Error('Chosen option is not valid');
                     end;
+                    if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then
+                        ADLSEExecution.ClearSchemaExportedOn();
+
                     CurrPage.Update();
                 end;
             }
