@@ -1,5 +1,6 @@
 namespace Zig.ADLSE;
 
+using Microsoft.Finance.GeneralLedger.Ledger;
 using System.Reflection;
 
 // Copyright (c) Microsoft Corporation.
