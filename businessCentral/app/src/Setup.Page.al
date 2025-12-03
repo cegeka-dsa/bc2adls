@@ -18,10 +18,14 @@ page 11007165 "ADLSE Setup"
     {
         area(Content)
         {
-            group(ConnectionSettings)
+            group(Setup)
             {
                 Caption = 'Connection';
-
+                group(General)
+                {
+                    Visible = false;
+                    Enabled = false;
+                }
                 field(StorageType; Rec."Storage Type")
                 {
                     trigger OnValidate()
@@ -40,8 +44,7 @@ page 11007165 "ADLSE Setup"
                         ADLSECredentials.SetTenantID(StorageTenantID);
                     end;
                 }
-
-                group(AzureDataLakeSettings)
+                group(Account)
                 {
                     Caption = 'Azure Data Lake';
                     Visible = AzureDataLake;
@@ -50,7 +53,7 @@ page 11007165 "ADLSE Setup"
                     field(AccountName; Rec."Account Name") { }
                 }
 
-                group(MSFabricSettings)
+                group(MSFabric)
                 {
                     Caption = 'Microsoft Fabric';
                     Visible = not AzureDataLake;
@@ -69,7 +72,7 @@ page 11007165 "ADLSE Setup"
                     }
                 }
 
-                group(AppRegistration)
+                group(Access)
                 {
                     Caption = 'App Registration';
 
@@ -96,6 +99,11 @@ page 11007165 "ADLSE Setup"
                         end;
                     }
                 }
+            }
+            group(Execution)
+            {
+                Visible = false;
+                Enabled = false;
             }
 
             group(ExportSettings)

@@ -116,6 +116,7 @@ codeunit 11007168 "ADLSE External Events"
     begin
         Url := ADLSEExternalEventsHelper.CreateLink(ADLSEFieldApiUrlTok, ADLSETable.SystemId);
         WebClientUrl := CopyStr(GetUrl(ClientType::Web, CompanyName(), ObjectType::Page, Page::"ADLSE Setup", ADLSESetup), 1, MaxStrLen(WebClientUrl));
+        MyBusinessOnExportFinishedv2(ADLSETable.SystemId, ADLSESetup."Storage Type", ADLSETable."Table ID", Url, WebClientUrl);
         MyBusinessOnAllExportIsFinished(ADLSESetup.SystemId, ADLSESetup."Storage Type", Url, WebClientUrl);
     end;
 
@@ -203,6 +204,12 @@ codeunit 11007168 "ADLSE External Events"
 
     [ExternalBusinessEvent('OnExport', 'Export data', 'When the data is exported', EventCategory::ADLSE)]
     local procedure MyBusinessOnExport(SystemId: Guid; "Storage Type": Enum "ADLSE Storage Type"; Url: Text[250]; WebClientUrl: Text[250])
+    begin
+    end;
+
+    [Obsolete('Deprecated by original app', '27.44')]
+    [ExternalBusinessEvent('OnExportFinishedv2', 'OBSOLETE - Export is finished for one table v2', 'When the export is finished for one table', EventCategory::ADLSE)]
+    local procedure MyBusinessOnExportFinishedv2(SystemId: Guid; "Storage Type": Enum "ADLSE Storage Type"; TableId: Integer; Url: Text[250]; WebClientUrl: Text[250])
     begin
     end;
 
