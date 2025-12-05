@@ -143,8 +143,6 @@ codeunit 11007166 "ADLSE Execute"
     end;
 
     local procedure SetFilterForUpdates(TableID: Integer; UpdatedLastTimeStamp: BigInteger; SkipTimestampSorting: Boolean; var RecordRef: RecordRef; var TimeStampFieldRef: FieldRef)
-    var
-        ADLSELastTimestamp: Record "ADLSE Table Last Timestamp";
     begin
         RecordRef.Open(TableID);
         if not SkipTimestampSorting then
@@ -386,6 +384,8 @@ codeunit 11007166 "ADLSE Execute"
         // exports being skipped. But they may become active in the next export 
         // batch. 
         ADLSESessionManager.StartExportFromPendingTables();
+
+
 
         if not ADLSECurrentSession.AreAnySessionsActive() then begin
             ADLSESetupRec.GetSingleton();
