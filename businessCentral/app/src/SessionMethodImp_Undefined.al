@@ -5,6 +5,7 @@ namespace Zig.ADLSE;
 codeunit 11007165 "ADLSE Method Imp. Undefined" implements "ADLSE Session Method Interface"
 {
     ObsoleteState = Pending;
+    ObsoleteTag = '27.44';
     ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
 
     var

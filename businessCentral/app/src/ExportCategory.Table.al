@@ -7,7 +7,7 @@ table 11007172 "ADLSE Export Category"
     LookupPageId = "ADLSE Export Categories";
     ObsoleteReason = 'Replaced with ADLSE Export Category Table.';
     ObsoleteTag = '25.0';
-    ObsoleteState = Pending;
+    ObsoleteState = Removed;
 
     fields
     {

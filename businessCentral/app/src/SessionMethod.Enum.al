@@ -7,6 +7,7 @@ enum 11007165 "ADLSE Session Method" implements "ADLSE Session Method Interface"
     Caption = 'ADLSE Session Method';
     Extensible = true;
     ObsoleteState = Pending;
+    ObsoleteTag = '27.44';
     ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
 
     value(0; " ")
