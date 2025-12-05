@@ -53,6 +53,19 @@ page 11007169 "ADLSE Setup Tables"
                     Caption = 'Entity name';
                     ToolTip = 'Specifies the name of the entity corresponding to this table on the data lake. The value at the end indicates the table number in Dynamics 365 Business Central.';
                 }
+#if not CLEAN27
+                field("Process Type"; Rec."Process Type")
+                {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
+                    ObsoleteTag = '27.44';
+                    ApplicationArea = All;
+                    Visible = false;
+                    Enabled = false;
+                    Caption = 'OBSOLETE - Process Type';
+                    ToolTip = 'OBSOLETE - Specifies how this table should be processed during export. Standard uses normal processing. Only change this setting if you experience performance issues with exports. Ignore Read Isolation boosts performance by disabling read isolation (NB! make sure there is no write-activity on subject table; failure may compromise export data consistency); Commit Externally uses external commit session to commit process when working with large tables. Both address Read Isolation in pre BC27 systems.';
+                }
+#endif
                 field(Status; LastRunState)
                 {
                     ApplicationArea = All;

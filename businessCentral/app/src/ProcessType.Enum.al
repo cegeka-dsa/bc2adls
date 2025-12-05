@@ -6,6 +6,7 @@ enum 11007163 "ADLSE Process Type"
     Access = Internal;
     Extensible = false;
     ObsoleteState = Pending;
+    ObsoleteTag = '27.44';
     ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
 
     value(0; "Standard")

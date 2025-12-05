@@ -207,6 +207,12 @@ codeunit 11007168 "ADLSE External Events"
     begin
     end;
 
+    [Obsolete('Replaced with the OnExportFinishedv2 External Business Event', '24.0')]
+    [ExternalBusinessEvent('OnExportFinished', 'OBSOLETE - Export is finished for one table', 'When the export is finished for one table', EventCategory::ADLSE)]
+    local procedure MyBusinessOnExportFinished(SystemId: Guid; "Storage Type": Enum "ADLSE Storage Type"; Url: Text[250]; WebClientUrl: Text[250])
+    begin
+    end;
+
     [Obsolete('Deprecated by original app', '27.44')]
     [ExternalBusinessEvent('OnExportFinishedv2', 'OBSOLETE - Export is finished for one table v2', 'When the export is finished for one table', EventCategory::ADLSE)]
     local procedure MyBusinessOnExportFinishedv2(SystemId: Guid; "Storage Type": Enum "ADLSE Storage Type"; TableId: Integer; Url: Text[250]; WebClientUrl: Text[250])
