@@ -1,8 +1,8 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Environment;
 
-table 82573 "ADLSE Sync Companies"
+table 11007163 "ADLSE Sync Companies"
 {
     Access = Internal;
     Caption = 'ADLSE Sync Companies';

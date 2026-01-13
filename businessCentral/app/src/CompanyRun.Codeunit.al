@@ -1,7 +1,7 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Reflection;
-codeunit 82578 "ADLSE Company Run"
+codeunit 11007451 "ADLSE Company Run"
 {
 
     Permissions = tabledata "ADLSE Companies Table" = RIMD;

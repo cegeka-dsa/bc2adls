@@ -1,7 +1,7 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Threading;
-page 82566 "ADLSE Company Setup"
+page 11007179 "ADLSE Company Setup"
 {
     Caption = 'Export Companies to Azure Data Lake Storage';
     ApplicationArea = all;

@@ -1,11 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using System.Environment;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
-namespace bc2adls;
-using System.Environment;
 #pragma warning disable LC0015
 table 11007160 "ADLSE Current Session"
 #pragma warning restore

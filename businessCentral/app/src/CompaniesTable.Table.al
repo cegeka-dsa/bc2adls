@@ -1,9 +1,10 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Environment;
 using System.Reflection;
+using Zig.ADLSE;
 #pragma warning disable LC0015
-table 82572 "ADLSE Companies Table"
+table 11007170 "ADLSE Companies Table"
 #pragma warning restore
 {
     Access = Internal;

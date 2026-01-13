@@ -1,7 +1,7 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Reflection;
-page 82565 "ADLSE Company Setup Tables"
+page 11007180 "ADLSE Company Setup Tables"
 {
     ApplicationArea = All;
     Caption = 'Company Tables';
@@ -220,7 +220,7 @@ page 82565 "ADLSE Company Setup Tables"
                 var
                     ADLSETable: Record "ADLSE Table";
                 begin
-                    XmlPort.Run(XmlPort::"BC2ADLS Import", false, true, ADLSETable);
+                    XmlPort.Run(XmlPort::"BC2ADLS Import/Export", false, true, ADLSETable);
                     CurrPage.Update(false);
                 end;
             }

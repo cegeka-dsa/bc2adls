@@ -1,8 +1,8 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Threading;
 using System.Environment;
-codeunit 82579 "ADLSE Multi Company Export"
+codeunit 11007450 "ADLSE Multi Company Export"
 {
     Permissions = tabledata "ADLSE Companies Table" = RIMD;
     TableNo = "Job Queue Entry";

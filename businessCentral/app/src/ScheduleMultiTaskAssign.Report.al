@@ -1,7 +1,7 @@
-namespace bc2adls;
+namespace Zig.ADLSE;
 
 using System.Threading;
-report 82562 "ADLSEScheduleMultiTaskAssign"
+report 11007162 "ADLSEScheduleMultiTaskAssign"
 {
     ApplicationArea = Basic, Suite;
     UsageCategory = ReportsAndAnalysis;
