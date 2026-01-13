@@ -50,5 +50,6 @@ permissionset 11007161 "ADLSE - Setup"
                   page "ADLSE Company Setup Tables" = X,
                   report "ADLSE Schedule Task Assignment" = X,
                   report "ADLSEScheduleMultiTaskAssign" = X,
+                  xmlport "BC2ADLS Import" = X,
                   xmlport "BC2ADLS Import/Export" = X;
 }

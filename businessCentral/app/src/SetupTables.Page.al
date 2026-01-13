@@ -261,7 +261,7 @@ page 11007169 "ADLSE Setup Tables"
                 var
                     ADLSETable: Record "ADLSE Table";
                 begin
-                    XmlPort.Run(XmlPort::"BC2ADLS Import/Export", false, true, ADLSETable);
+                    XmlPort.Run(XmlPort::"BC2ADLS Import", false, true, ADLSETable);
                     CurrPage.Update(false);
                 end;
             }

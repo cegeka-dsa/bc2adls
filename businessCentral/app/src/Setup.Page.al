@@ -21,7 +21,14 @@ page 11007165 "ADLSE Setup"
             group(Setup)
             {
                 Caption = 'Connection';
-
+                group(General)
+                {
+                    Visible = false;
+                    Enabled = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Not needed anymore since page redesign.';
+                    ObsoleteTag = '27.48';
+                }
                 field(StorageType; Rec."Storage Type")
                 {
                     trigger OnValidate()
