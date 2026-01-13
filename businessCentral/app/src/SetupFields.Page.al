@@ -1,9 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using System.Reflection;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 page 11007168 "ADLSE Setup Fields"
 {
     PageType = List;
@@ -39,11 +39,10 @@ page 11007168 "ADLSE Setup Fields"
                 }
                 field(IsPartOfPrimaryKey; IsPartOfPrimaryKey)
                 {
-                    ApplicationArea = All;
                     Caption = 'Part of Primary Key';
                     Editable = false;
                     StyleExpr = StyleExprAsText;
-                    ToolTip = 'Specifies if the the field is part of the primary key';
+                    ToolTip = 'Specifies if the the field is part of the primary key.';
                 }
                 field(ADLSFieldName; ADLSFieldName)
                 {
@@ -136,12 +135,12 @@ page 11007168 "ADLSE Setup Fields"
         end;
 
         if IsPartOfPrimaryKey then
-            StyleExprAsText := 'StrongAccent'
+            StyleExprAsText := Format(PageStyle::StrongAccent)
         else
-            StyleExprAsText := 'Standard';
+            StyleExprAsText := Format(PageStyle::Standard);
 
         if FieldObsoleteState <> Field.ObsoleteState::No then
-            StyleExprAsText := 'Attention';
+            StyleExprAsText := Format(PageStyle::Attention);
     end;
 
     var

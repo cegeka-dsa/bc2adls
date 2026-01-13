@@ -1,11 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
 using System.Environment;
 using System.Reflection;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.microsoft.com/en-us/common-data-model/sdk/overview
 {
     Access = Internal;
@@ -82,8 +82,8 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
             FieldRef := RecordRef.Field(FieldId);
             Clear(Column);
             Column.Add('Name', ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef));
-            Column.Add('DataType', GetOpenMirrorDataFormat(FieldRef.Type));
-            if (FieldRef.Number <> RecordRef.SystemIdNo()) then
+            Column.Add('DataType', GetOpenMirrorDataFormat(FieldRef.Type()));
+            if (FieldRef.Number() <> RecordRef.SystemIdNo()) then
                 Column.Add('IsNullable', true);
             Columns.Add(Column);
         end;
@@ -202,20 +202,20 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
         RecordRef.Open(TableID);
         foreach FieldId in FieldIdList do begin
             FieldRef := RecordRef.Field(FieldId);
-            GetCDMAttributeDetails(FieldRef.Type, DataFormat, AppliedTraits);
-            FieldLength := FieldRef.Length;
-            if FieldRef.Type = FieldRef.Type::Option then
+            GetCDMAttributeDetails(FieldRef.Type(), DataFormat, AppliedTraits);
+            FieldLength := FieldRef.Length();
+            if FieldRef.Type() = FieldRef.Type::Option then
                 FieldLength := EnumValueMaxLength();
-            if FieldRef.Type = FieldRef.Type::Decimal then
+            if FieldRef.Type() = FieldRef.Type::Decimal then
                 FieldLength := 15; // 15 is the default max number of digits. FieldRef.Length is giving the wrong number back for decimal
             Result.Add(
                 CreateAttributeJson(
                     ADLSEUtil.GetDataLakeCompliantFieldName(FieldRef),
                     DataFormat,
-                    FieldRef.Name,
+                    FieldRef.Name(),
                     AppliedTraits,
                     FieldLength,
-                    IsPrimaryKeyField(RecordRef.Number, FieldRef.Number)
+                    IsPrimaryKeyField(RecordRef.Number(), FieldRef.Number())
                 ));
         end;
         ADLSESetup.GetSingleton();
@@ -428,49 +428,6 @@ codeunit 11007161 "ADLSE CDM Util" // Refer Common Data Model https://docs.micro
     begin
         exit('String');
     end;
-
-    local procedure GetFabricDataFormat(FieldType: FieldType): Text
-    var
-        ADLSESetup: Record "ADLSE Setup";
-    begin
-        case FieldType of
-            FieldType::BigInteger:
-                exit('Int');
-            FieldType::Date:
-                exit('date');
-            FieldType::DateFormula:
-                exit(GetCDMDataFormat_String());
-            FieldType::DateTime:
-                exit('DateTimeFormat');
-            FieldType::Decimal:
-                exit('DecimalFormat');
-            FieldType::Duration:
-                exit('timedelta');
-            FieldType::Integer:
-                exit('Int');
-            FieldType::Option:
-                begin
-                    ADLSESetup.GetSingleton();
-                    if ADLSESetup."Export Enum as Integer" then
-                        exit('Int')
-                    else
-                        exit(GetCDMDataFormat_String());
-                end;
-            FieldType::Time:
-                exit(GetCDMDataFormat_String());
-            FieldType::Boolean:
-                exit('Boolean');
-            FieldType::Code:
-                exit(GetCDMDataFormat_String());
-            FieldType::Guid:
-                exit(GetCDMDataFormat_String());
-            FieldType::Text:
-                exit(GetCDMDataFormat_String());
-            else
-                exit(GetCDMDataFormat_String()); // default case
-        end;
-    end;
-
 
     local procedure GetOpenMirrorDataFormat(FieldType: FieldType): Text
     var

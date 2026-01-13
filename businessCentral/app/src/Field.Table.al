@@ -1,9 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using System.Reflection;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 #pragma warning disable LC0015
 table 11007165 "ADLSE Field"
 #pragma warning restore
@@ -70,6 +70,16 @@ table 11007165 "ADLSE Field"
         key(Key1; "Table ID", "Field ID")
         {
             Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Table ID", "Field ID", "FieldCaption")
+        {
+        }
+        fieldgroup(Brick; "Table ID", "Field ID", "FieldCaption", Enabled)
+        {
         }
     }
 

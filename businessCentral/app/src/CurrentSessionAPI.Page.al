@@ -1,6 +1,7 @@
-namespace Zig.ADLSE;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 page 11007171 "ADLSE CurrentSession API"
 {
     PageType = API;

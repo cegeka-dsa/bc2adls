@@ -5,6 +5,7 @@ table 11007173 "ADLSE Export Category Table"
     Caption = 'Export Category Table';
     DataClassification = ToBeClassified;
     LookupPageId = "ADLSE Export Categories";
+    DrillDownPageId = "ADLSE Export Categories";
     DataPerCompany = false;
 
     fields
@@ -28,6 +29,16 @@ table 11007173 "ADLSE Export Category Table"
         key(PK; "Code")
         {
             Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Code", Description)
+        {
+        }
+        fieldgroup(Brick; "Code", Description)
+        {
         }
     }
 }

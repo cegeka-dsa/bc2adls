@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 page 11007163 "ADLSE Run"
 {
     PageType = List;
@@ -73,6 +73,11 @@ page 11007163 "ADLSE Run"
         Rec.SetRange("Company Name", CompanyName());
         Rec.SetCurrentKey(Started);
         Rec.SetAscending(Started, false); // the last log at the top
+    end;
+
+    procedure SetCompanyName(parCompanyName: Text)
+    begin
+        Rec.SetRange("Company Name", parCompanyName);
     end;
 
     trigger OnAfterGetRecord()

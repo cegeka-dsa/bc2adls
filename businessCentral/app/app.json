@@ -2,9 +2,9 @@
   "id": "f50ed17c-be40-4d00-ad13-2e5132038664",
   "name": "Zig365 Insights Connector",
   "publisher": "Zig",
-  "brief": "Sync data from Business Central to the Azure storage",
-  "description": "Exports data in chosen tables to the Azure Data Lake and keeps it in sync by incremental updates. Before you use this tool, please read the SUPPORT.md file at https://github.com/microsoft/bc2adls.",
-  "version": "27.44.99999.0",
+  "brief": "Sync data from Business Central to Microsoft Fabric and Azure storage",
+  "description": "Exports data in chosen tables to Microsoft Fabric and Azure Data Lake and keeps it in sync by incremental updates. Before you use this tool, please read the SUPPORT.md file at https://github.com/cegeka-dsa/bc2adls.",
+  "version": "27.48.99999.0",
   "privacyStatement": "https://go.microsoft.com/fwlink/?LinkId=724009",
   "EULA": "https://go.microsoft.com/fwlink/?linkid=2009120",
   "help": "https://go.microsoft.com/fwlink/?LinkId=724011",
@@ -39,6 +39,11 @@
       "publisher": "Zig",
       "name": "Zig365 Insights Connector Tests",
       "id": "03486619-1622-4261-ae0e-b366b3c96e3c"
+    },
+    {
+      "publisher": "The bc2adls team",
+      "name": "bc2adls_migration",
+      "id": "1a9249ee-60b8-4da4-9c8a-edea122adf7f"
     }
   ],
   "features": ["TranslationFile"],

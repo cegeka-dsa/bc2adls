@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 codeunit 11007163 "ADLSE Communication"
 {
     Access = Internal;
@@ -205,7 +205,7 @@ codeunit 11007163 "ADLSE Communication"
             FileIdentifer := CreateGuid()
         else begin
             //https://learn.microsoft.com/en-us/fabric/database/mirrored-database/open-mirroring-landing-zone-format#data-file-and-format-in-the-landing-zone
-            ADLSETable.Get(TableID);
+            if ADLSETable.Get(TableID) then;
             if ADLSETable.ExportFileNumber = 0 then begin
                 ADLSETable.ExportFileNumber := 1;
                 ADLSETable.Modify(true);
@@ -295,7 +295,7 @@ codeunit 11007163 "ADLSE Communication"
                 Error(SingleRecordTooLargeErr);
             FlushPayload();
             if ADLSESetup."Storage Type" = ADLSESetup."Storage Type"::"Open Mirroring" then
-                UpdateInProgressTimeStampOnTable(RecordRef.Number, RecordTimeStamp, Deletes);
+                UpdateInProgressTimeStampOnTable(RecordRef.Number(), RecordTimeStamp, Deletes);
         end;
         LastTimestampExported := LastFlushedTimeStamp;
 
@@ -510,7 +510,7 @@ codeunit 11007163 "ADLSE Communication"
             ADLSETable.Get(TableIdToUpdate);
             ADLSETable.ExportFileNumber := ADLSETable.ExportFileNumber + 1;
             ADLSETable.Modify(true);
-            Commit();
+            Commit(); //Needs to be committed right away to be visible for other sessions
         end;
     end;
 }

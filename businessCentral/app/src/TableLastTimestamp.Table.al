@@ -1,9 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using System.Environment;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 table 11007169 "ADLSE Table Last Timestamp"
 {
     /// <summary>
@@ -47,6 +47,16 @@ table 11007169 "ADLSE Table Last Timestamp"
         key(Key1; "Company Name", "Table ID")
         {
             Clustered = true;
+        }
+    }
+
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Company Name", "Table ID")
+        {
+        }
+        fieldgroup(Brick; "Company Name", "Table ID", "Updated Last Timestamp")
+        {
         }
     }
 
