@@ -75,7 +75,6 @@ table 11007167 "ADLSE Setup"
         {
             Caption = 'Exporting data';
             Editable = false;
-            Enabled = false;
             ObsoleteReason = 'Use ADLSE Current Session::AreAnySessionsActive() instead';
             ObsoleteTag = '1.2.2.0';
             ObsoleteState = Removed;

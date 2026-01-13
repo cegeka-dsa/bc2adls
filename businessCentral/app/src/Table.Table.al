@@ -28,7 +28,6 @@ table 11007171 "ADLSE Table"
         {
             Editable = false;
             Caption = 'State';
-            Enabled = false;
             ObsoleteReason = 'Use ADLSE Run table instead';
             ObsoleteTag = '1.2.2.0';
             ObsoleteState = Removed;
@@ -57,7 +56,6 @@ table 11007171 "ADLSE Table"
         field(5; LastError; Text[2048])
         {
             Editable = false;
-            Enabled = false;
             Caption = 'Last error';
             ObsoleteReason = 'Use ADLSE Run table instead';
             ObsoleteTag = '1.2.2.0';
