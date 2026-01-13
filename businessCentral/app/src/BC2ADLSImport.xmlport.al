@@ -2,16 +2,13 @@ namespace Zig.ADLSE;
 
 using System.Utilities;
 
-xmlport 11007160 "BC2ADLS Import/Export"
+xmlport 11007162 "BC2ADLS Import"
 {
-    Caption = 'BC2ADLS Import/Export';
+    Caption = 'BC2ADLS Import';
     UseRequestPage = false;
     Direction = Import;
     Permissions = tabledata "ADLSE Field" = rmi,
                   tabledata "ADLSE Table" = rmid;
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by BC2ADLS Import and BC2ADLS Export xmlports.';
-    ObsoleteTag = '27.48';
 
     schema
     {

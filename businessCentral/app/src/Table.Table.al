@@ -24,6 +24,15 @@ table 11007171 "ADLSE Table"
             Editable = false;
             Caption = 'Table ID';
         }
+        field(2; State; Integer)
+        {
+            Editable = false;
+            Caption = 'State';
+            Enabled = false;
+            ObsoleteReason = 'Use ADLSE Run table instead';
+            ObsoleteTag = '1.2.2.0';
+            ObsoleteState = Removed;
+        }
         field(3; Enabled; Boolean)
         {
             Editable = false;
@@ -44,6 +53,15 @@ table 11007171 "ADLSE Table"
 
                 ADLSEExternalEvents.OnEnableTableChanged(Rec);
             end;
+        }
+        field(5; LastError; Text[2048])
+        {
+            Editable = false;
+            Enabled = false;
+            Caption = 'Last error';
+            ObsoleteReason = 'Use ADLSE Run table instead';
+            ObsoleteTag = '1.2.2.0';
+            ObsoleteState = Removed;
         }
         field(10; ExportCategory; Code[50])
         {

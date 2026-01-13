@@ -71,6 +71,16 @@ table 11007167 "ADLSE Setup"
             InitValue = Parquet;
         }
 
+        field(10; Running; Boolean)
+        {
+            Caption = 'Exporting data';
+            Editable = false;
+            Enabled = false;
+            ObsoleteReason = 'Use ADLSE Current Session::AreAnySessionsActive() instead';
+            ObsoleteTag = '1.2.2.0';
+            ObsoleteState = Removed;
+        }
+
         field(11; "Emit telemetry"; Boolean)
         {
             Caption = 'Emit telemetry';
