@@ -21,11 +21,7 @@ page 11007165 "ADLSE Setup"
             group(Setup)
             {
                 Caption = 'Connection';
-                group(General)
-                {
-                    Visible = false;
-                    Enabled = false;
-                }
+
                 field(StorageType; Rec."Storage Type")
                 {
                     trigger OnValidate()

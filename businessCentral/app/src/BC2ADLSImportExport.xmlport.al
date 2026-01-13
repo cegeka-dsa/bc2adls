@@ -4,7 +4,7 @@ using System.Utilities;
 
 xmlport 11007160 "BC2ADLS Import/Export"
 {
-    Caption = 'BC2ADLS Import/Export';
+    Caption = 'BC2ADLS Import';
     UseRequestPage = false;
     Direction = Import;
     Permissions = tabledata "ADLSE Field" = rmi,
@@ -62,7 +62,8 @@ xmlport 11007160 "BC2ADLS Import/Export"
                             ADLSETableRec.Validate(ExportCategory, ADLSETable.ExportCategory);
                             ADLSETableRec.Enabled := true;
                             ADLSETableRec.Insert(true);
-                            ADLSETable.AddAllFields();
+                            ADLSEFieldRec.SetRange("Table ID", ADLSEField."Table ID");
+                            ADLSEFieldRec.InsertForTable(ADLSETableRec);
                         end;
 
                         if ADLSEFieldRec.Get(ADLSEField."Table ID", ADLSEField."Field ID") then begin
