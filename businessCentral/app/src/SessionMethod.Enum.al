@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 enum 11007165 "ADLSE Session Method" implements "ADLSE Session Method Interface"
 {
     Caption = 'ADLSE Session Method';

@@ -1,5 +1,7 @@
 namespace Zig.ADLSE;
 
+using System.Utilities;
+
 xmlport 11007160 "BC2ADLS Import/Export"
 {
     Caption = 'BC2ADLS Import/Export';
@@ -20,6 +22,10 @@ xmlport 11007160 "BC2ADLS Import/Export"
                 UseTemporary = true;
 
                 fieldattribute(TableId; ADLSETable."Table ID")
+                {
+                    Occurrence = Required;
+                }
+                fieldattribute(ExportCategory; ADLSETable.ExportCategory)
                 {
                     Occurrence = Required;
                 }
@@ -53,6 +59,7 @@ xmlport 11007160 "BC2ADLS Import/Export"
                     begin
                         if not ADLSETableRec.Get(ADLSEField."Table ID") then begin
                             ADLSETableRec.Validate("Table ID", ADLSEField."Table ID");
+                            ADLSETableRec.Validate(ExportCategory, ADLSETable.ExportCategory);
                             ADLSETableRec.Enabled := true;
                             ADLSETableRec.Insert(true);
                             ADLSETable.AddAllFields();
@@ -73,4 +80,21 @@ xmlport 11007160 "BC2ADLS Import/Export"
             }
         }
     }
+
+    trigger OnPreXmlPort()
+    var
+        ADLSETableRec: Record "ADLSE Table";
+        ConfirmManagement: Codeunit "Confirm Management";
+        ConfirmQuestionMsg: Label 'With the import all existing ADLSE Tables and Fields will be deleted. Do you want to continue?';
+    begin
+        if not ADLSETableRec.IsEmpty() then
+            if GuiAllowed() then begin
+                if ConfirmManagement.GetResponse(ConfirmQuestionMsg, true) then
+                    ADLSETableRec.DeleteAll(true)
+                else
+                    currXMLport.Quit();
+            end else
+                ADLSETableRec.DeleteAll(true);
+
+    end;
 }

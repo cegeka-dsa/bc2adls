@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+
+namespace Zig.ADLSE;
 permissionset 11007164 "ADLSE - API"
 {
     /// <summary>

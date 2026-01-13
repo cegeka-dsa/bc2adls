@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 codeunit 11007165 "ADLSE Method Imp. Undefined" implements "ADLSE Session Method Interface"
 {
     ObsoleteState = Pending;

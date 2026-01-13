@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 codeunit 11007449 "ADLSE Method Imp. RecLastTime" implements "ADLSE Session Method Interface"
 {
     ObsoleteState = Pending;

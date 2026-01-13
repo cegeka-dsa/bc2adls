@@ -2,6 +2,7 @@ namespace Zig.ADLSE;
 
 #if not CLEAN27
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace bc2adls;
 interface "ADLSE Session Method Interface"
 {
     /// <summary>

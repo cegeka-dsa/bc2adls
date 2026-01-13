@@ -1,6 +1,6 @@
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 table 11007180 "Session Instruction"
 {
     Caption = 'Session Instruction';

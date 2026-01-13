@@ -1,10 +1,10 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using System.Globalization;
 using System.Threading;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 page 11007165 "ADLSE Setup"
 {
     PageType = Card;
@@ -372,6 +372,14 @@ page 11007165 "ADLSE Setup"
                 ToolTip = 'Specifies the Export Categories available for scheduling the export to Datalake.';
                 Image = Export;
                 RunObject = page "ADLSE Export Categories";
+            }
+            action("Multi Company Export Setup")
+            {
+                Caption = 'Multi Company Export Setup';
+                ApplicationArea = All;
+                ToolTip = 'Specifies the company setup for exporting data from multiple companies.';
+                Image = Export;
+                RunObject = page "ADLSE Company Setup";
             }
         }
         area(Promoted)

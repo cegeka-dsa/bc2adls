@@ -49,6 +49,16 @@ table 11007162 "ADLSE Enum Translation"
         }
     }
 
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Table Id", "Field Id")
+        {
+        }
+        fieldgroup(Brick; "Table Id", "Compliant Table Name", "Field Id", "Compliant Field Name")
+        {
+        }
+    }
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Enum Translation", 'i')]
     local procedure InsertEnum(TableId: Integer; FieldNo: Integer; FieldName: Text[30])
     var
@@ -91,12 +101,12 @@ table 11007162 "ADLSE Enum Translation"
                 ADLSERecordRef.Close();
             until ADLSETable.Next() = 0;
 
-        if not ADLSETable.Get(Rec.RecordId.TableNo) then begin
-            ADLSETable.Add(Rec.RecordId.TableNo);
+        if not ADLSETable.Get(Rec.RecordId().TableNo()) then begin
+            ADLSETable.Add(Rec.RecordId().TableNo());
             ADLSETable.AddAllFields();
         end;
-        if not ADLSETable.Get(ADLSEEnumTranslationLang.RecordId.TableNo) then begin
-            ADLSETable.Add(ADLSEEnumTranslationLang.RecordId.TableNo);
+        if not ADLSETable.Get(ADLSEEnumTranslationLang.RecordId().TableNo()) then begin
+            ADLSETable.Add(ADLSEEnumTranslationLang.RecordId().TableNo());
             ADLSETable.AddAllFields();
         end;
 

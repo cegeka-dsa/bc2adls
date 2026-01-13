@@ -1,9 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
 using System.Reflection;
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
 page 11007169 "ADLSE Setup Tables"
 {
     Caption = 'Tables';
@@ -43,7 +43,8 @@ page 11007169 "ADLSE Setup Tables"
 
                     trigger OnDrillDown()
                     begin
-                        DoChooseFields();
+                        Rec.DoChooseFields();
+                        CurrPage.Update();
                     end;
                 }
                 field(ADLSTableName; ADLSEntityName)
@@ -182,7 +183,8 @@ page 11007169 "ADLSE Setup Tables"
 
                 trigger OnAction()
                 begin
-                    DoChooseFields();
+                    Rec.DoChooseFields();
+                    CurrPage.Update();
                 end;
             }
 
@@ -343,7 +345,7 @@ page 11007169 "ADLSE Setup Tables"
         end;
         ADLSERun.GetLastRunDetails(Rec."Table ID", LastRunState, LastStarted, LastRunError);
 
-        IssueNotificationIfInvalidFieldsConfiguredToBeExported();
+        Rec.IssueNotificationIfInvalidFieldsConfiguredToBeExported();
     end;
 
     var

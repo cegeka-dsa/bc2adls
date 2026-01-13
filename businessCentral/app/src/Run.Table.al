@@ -2,6 +2,7 @@ namespace Zig.ADLSE;
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace bc2adls;
 #pragma warning disable LC0004, LC0015
 table 11007166 "ADLSE Run"
 #pragma warning restore
@@ -69,6 +70,16 @@ table 11007166 "ADLSE Run"
         }
         key(Key3; Started)
         { // sorting key
+        }
+    }
+
+    fieldgroups
+    {
+        fieldgroup(DropDown; ID, "Table ID", "Company Name")
+        {
+        }
+        fieldgroup(Brick; ID, "Table ID", "Company Name", State, Started)
+        {
         }
     }
 

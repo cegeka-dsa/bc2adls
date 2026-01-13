@@ -1,6 +1,6 @@
+#if not CLEAN27
 namespace Zig.ADLSE;
 
-#if not CLEAN27
 codeunit 11007448 "ADLSE Method Imp. IncFileName" implements "ADLSE Session Method Interface"
 {
     ObsoleteState = Pending;

@@ -2,6 +2,7 @@ namespace Zig.ADLSE;
 
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace bc2adls;
 #pragma warning disable LC0015
 table 11007161 "ADLSE Deleted Record"
 #pragma warning restore
@@ -46,6 +47,16 @@ table 11007161 "ADLSE Deleted Record"
         }
     }
 
+    fieldgroups
+    {
+        fieldgroup(DropDown; "Entry No.", "Table ID")
+        {
+        }
+        fieldgroup(Brick; "Entry No.", "Table ID", "System ID")
+        {
+        }
+    }
+
     procedure TrackDeletedRecord(RecordRef: RecordRef)
     var
         ADLSESetup: Record "ADLSE Setup";
@@ -77,7 +88,7 @@ table 11007161 "ADLSE Deleted Record"
         // in the next run.   
 
         Init();
-        "Table ID" := RecordRef.Number;
+        "Table ID" := RecordRef.Number();
         "System ID" := SystemIdFieldRef.Value();
         TimestampFieldRef := RecordRef.Field(0);
         "Deletion Timestamp" := TimestampFieldRef.Value();

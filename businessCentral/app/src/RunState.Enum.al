@@ -1,7 +1,7 @@
-namespace Zig.ADLSE;
-
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
+namespace Zig.ADLSE;
+
 enum 11007162 "ADLSE Run State"
 {
     Access = Internal;
