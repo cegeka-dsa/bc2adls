@@ -254,7 +254,10 @@ codeunit 11007171 "ADLSE Http"
         Headers.Remove('Content-Type');
         Headers.Add('Content-Type', 'application/x-www-form-urlencoded');
 
-        HttpClient.Post(Uri, HttpContent, HttpResponseMessage);
+        if not HttpClient.Post(Uri, HttpContent, HttpResponseMessage) then begin
+            AuthError := GetLastErrorText();
+            exit;
+        end;
         HttpContent := HttpResponseMessage.Content();
         HttpContent.ReadAs(ResponseBody);
         if not HttpResponseMessage.IsSuccessStatusCode() then begin
