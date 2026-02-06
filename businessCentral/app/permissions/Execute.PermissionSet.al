@@ -35,6 +35,7 @@ permissionset 11007160 "ADLSE - Execute"
                   codeunit "ADLSE Communication" = X,
                   codeunit "ADLSE Session Manager" = X,
                   codeunit "ADLSE Http" = X,
+                  codeunit "ADLSE Token Cache" = X,
                   codeunit "ADLSE Gen 2 Util" = X,
                   codeunit "ADLSE Execute" = X,
                   codeunit "ADLSE Execution" = X,
