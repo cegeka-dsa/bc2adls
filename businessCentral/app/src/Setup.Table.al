@@ -291,7 +291,7 @@ table 11007167 "ADLSE Setup"
         Insert();
     end;
 
-    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'r')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'R')]
     procedure Exists(): Boolean
     begin
         exit(Rec.Get(GetPrimaryKeyValue()));

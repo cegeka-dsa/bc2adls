@@ -2,6 +2,8 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
+using System.Threading;
+
 page 11007166 "ADLSE Setup API v12"
 {
     PageType = API;
@@ -96,6 +98,18 @@ page 11007166 "ADLSE Setup API v12"
         ADLSEEnumTranslation: Record "ADLSE Enum Translation";
     begin
         ADLSEEnumTranslation.RefreshOptions();
+        SetActionResponse(ActionContext, Rec."SystemId");
+    end;
+
+    [ServiceEnabled]
+    procedure StartMultiCompanyExport(var ActionContext: WebServiceActionContext)
+    var
+        TempJobQueueEntry: Record "Job Queue Entry" temporary;
+        ADLSEMultiCompanyExport: Codeunit "ADLSE Multi Company Export";
+    begin
+        TempJobQueueEntry.Init();
+        TempJobQueueEntry.Insert(false);
+        ADLSEMultiCompanyExport.Run(TempJobQueueEntry);
         SetActionResponse(ActionContext, Rec."SystemId");
     end;
 
