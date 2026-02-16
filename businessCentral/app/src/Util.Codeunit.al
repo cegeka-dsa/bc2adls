@@ -7,7 +7,6 @@ using System.Reflection;
 
 codeunit 11007177 "ADLSE Util"
 {
-    Access = Internal;
 
     var
         AlphabetsLowerTxt: Label 'abcdefghijklmnopqrstuvwxyz', Locked = true;
@@ -24,12 +23,12 @@ codeunit 11007177 "ADLSE Util"
         FractionSecondsTok: Label ':%1.%2Z', Comment = '%1: seconds, %2: milliseconds', Locked = true;
         UnknownTok: Label 'Unknown', Locked = true;
 
-    procedure ToText(GuidValue: Guid): Text
+    internal procedure ToText(GuidValue: Guid): Text
     begin
         exit(Format(GuidValue).TrimStart('{').TrimEnd('}'));
     end;
 
-    procedure Concatenate(List: List of [Text]) Result: Text
+    internal procedure Concatenate(List: List of [Text]) Result: Text
     var
         Item: Text;
     begin
@@ -38,7 +37,7 @@ codeunit 11007177 "ADLSE Util"
         Result := Result.TrimEnd(', ');
     end;
 
-    procedure GetCurrentDateTimeInGMTFormat(): Text
+    internal procedure GetCurrentDateTimeInGMTFormat(): Text
     var
         LocalTimeInUtc: Text;
         Parts: List of [Text];
@@ -130,7 +129,7 @@ codeunit 11007177 "ADLSE Util"
         end;
     end;
 
-    procedure GetUtcEpochWithTimezoneOffset(): DateTime
+    internal procedure GetUtcEpochWithTimezoneOffset(): DateTime
     var
         TypeHelper: Codeunit "Type Helper";
         UtcOffset: Duration;
@@ -139,7 +138,7 @@ codeunit 11007177 "ADLSE Util"
         exit(CreateDateTime(DMY2Date(1, 1, 1900), 0T) + UtcOffset);
     end;
 
-    procedure GetTableCaption(TableID: Integer): Text
+    internal procedure GetTableCaption(TableID: Integer): Text
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
@@ -147,7 +146,7 @@ codeunit 11007177 "ADLSE Util"
             exit(AllObjWithCaption."Object Caption");
     end;
 
-    procedure GetDataLakeCompliantTableName(TableID: Integer) TableName: Text
+    internal procedure GetDataLakeCompliantTableName(TableID: Integer) TableName: Text
     var
         ADLSESetup: Record "ADLSE Setup";
         AllObjWithCaption: Record AllObjWithCaption;
@@ -173,7 +172,7 @@ codeunit 11007177 "ADLSE Util"
             exit(StrSubstNo(ConcatNameIdTok, GetDataLakeCompliantName(OrigTableName), TableID));
     end;
 
-    procedure GetDataLakeCompliantFieldName(TableID: Integer; FieldID: Integer): Text
+    internal procedure GetDataLakeCompliantFieldName(TableID: Integer; FieldID: Integer): Text
     var
         FieldName: Text;
     begin
@@ -194,12 +193,13 @@ codeunit 11007177 "ADLSE Util"
         FieldName := GetDataLakeCompliantFieldName(FieldRef);
     end;
 
-    procedure GetDataLakeCompliantFieldName(FieldRef: FieldRef): Text
+    internal procedure GetDataLakeCompliantFieldName(FieldRef: FieldRef): Text
     var
         ADLSESetup: Record "ADLSE Setup";
         TableFields: Record Field;
         RecRef: RecordRef;
         NameToUse: Text;
+        CompliantFieldName: Text;
     begin
         ADLSESetup.GetSingleton();
         if ADLSESetup."Use Field Captions" then
@@ -209,21 +209,25 @@ codeunit 11007177 "ADLSE Util"
         if ADLSESetup."Use IDs for Duplicates Only" then begin
             RecRef := FieldRef.Record();
             TableFields.SetRange(TableNo, RecRef.Number());
-            if ADLSESetup."Use Field Captions" then
-                TableFields.SetRange("Field Caption", NameToUse)
+            if ADLSESetup."Use Field Captions" then begin
+                TableFields.SetRange("Field Caption", NameToUse);
+                TableFields.SetFilter("No.", '<>%1', FieldRef.Number());
+                if TableFields.IsEmpty() then // there is not a duplicate field name/caption 
+                    CompliantFieldName := GetDataLakeCompliantName(NameToUse)
+                else
+                    CompliantFieldName := StrSubstNo(ConcatNameIdTok, GetDataLakeCompliantName(NameToUse), FieldRef.Number());
+            end
             else
-                exit(GetDataLakeCompliantName(NameToUse));
-
-            TableFields.SetFilter("No.", '<>%1', FieldRef.Number());
-            if TableFields.IsEmpty() then // there is not a duplicate field name/caption
-                exit(GetDataLakeCompliantName(NameToUse))
-            else
-                exit(StrSubstNo(ConcatNameIdTok, GetDataLakeCompliantName(NameToUse), FieldRef.Number()));
+                CompliantFieldName := GetDataLakeCompliantName(NameToUse);
         end else
-            exit(StrSubstNo(ConcatNameIdTok, GetDataLakeCompliantName(NameToUse), FieldRef.Number()));
+            CompliantFieldName := StrSubstNo(ConcatNameIdTok, GetDataLakeCompliantName(NameToUse), FieldRef.Number());
+
+        OnAfterGetDataLakeCompliantFieldName(FieldRef, CompliantFieldName);
+
+        exit(CompliantFieldName);
     end;
 
-    procedure GetTableName(TableID: Integer) TableName: Text
+    internal procedure GetTableName(TableID: Integer) TableName: Text
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
@@ -231,7 +235,7 @@ codeunit 11007177 "ADLSE Util"
             TableName := AllObjWithCaption."Object Name";
     end;
 
-    procedure GetDataLakeCompliantName(Name: Text) Result: Text
+    internal procedure GetDataLakeCompliantName(Name: Text) Result: Text
     var
         ADLSESetup: Record "ADLSE Setup";
         ResultBuilder: TextBuilder;
@@ -258,7 +262,7 @@ codeunit 11007177 "ADLSE Util"
         Result := ResultBuilder.ToText();
     end;
 
-    procedure CheckFieldTypeForExport(Field: Record Field)
+    internal procedure CheckFieldTypeForExport(Field: Record Field)
     begin
         case Field.Type of
             Field.Type::BigInteger,
@@ -279,7 +283,7 @@ codeunit 11007177 "ADLSE Util"
         Error(FieldTypeNotSupportedErr, Field."Field Caption", Field.Type);
     end;
 
-    procedure ConvertFieldToText(FieldRef: FieldRef): Text
+    internal procedure ConvertFieldToText(FieldRef: FieldRef): Text
     var
         ADLSESetup: Record "ADLSE Setup";
         DateTimeValue: DateTime;
@@ -324,7 +328,7 @@ codeunit 11007177 "ADLSE Util"
         end;
     end;
 
-    procedure ConvertOptionFieldToValueText(FieldRef: FieldRef): Text
+    internal procedure ConvertOptionFieldToValueText(FieldRef: FieldRef): Text
     begin
         case FieldRef.Type() of
             FieldRef.Type::Option:
@@ -346,17 +350,17 @@ codeunit 11007177 "ADLSE Util"
         exit(StrSubstNo(QuotedTextTok, Val));
     end;
 
-    procedure ConvertNumberToText(Val: Integer): Text
+    internal procedure ConvertNumberToText(Val: Integer): Text
     begin
         exit(Format(Val, 0, 9));
     end;
 
-    local procedure ConvertNumberToText(Variant: Variant): Text
+    internal procedure ConvertNumberToText(Variant: Variant): Text
     begin
         exit(Format(Variant, 0, 9));
     end;
 
-    local procedure ConvertTimeToText(Variant: Variant): Text
+    internal procedure ConvertTimeToText(Variant: Variant): Text
     var
         ADLSESetup: Record "ADLSE Setup";
         TimeValue: Time;
@@ -393,7 +397,7 @@ codeunit 11007177 "ADLSE Util"
         Result := Result.Replace(StrSubstNo(WholeSecondsTok, SecondsText), StrSubstNo(FractionSecondsTok, WholeSecondsText, MillisecondsText));
     end;
 
-    procedure AddSystemFields(var FieldIdList: List of [Integer])
+    internal procedure AddSystemFields(var FieldIdList: List of [Integer])
     var
         RecordRef: RecordRef;
     begin
@@ -405,7 +409,7 @@ codeunit 11007177 "ADLSE Util"
         FieldIdList.Add(RecordRef.SystemModifiedByNo());
     end;
 
-    procedure CreateCsvHeader(RecordRef: RecordRef; FieldIdList: List of [Integer]) RecordPayload: Text
+    internal procedure CreateCsvHeader(RecordRef: RecordRef; FieldIdList: List of [Integer]) RecordPayload: Text
     var
         ADLSESetup: Record "ADLSE Setup";
         ADLSECDMUtil: Codeunit "ADLSE CDM Util";
@@ -443,9 +447,11 @@ codeunit 11007177 "ADLSE Util"
 
         Payload.AppendLine();
         RecordPayload := Payload.ToText();
+
+        OnAfterCreateCsvHeader(RecordRef, FieldIdList, RecordPayload);
     end;
 
-    procedure CreateCsvPayload(RecordRef: RecordRef; FieldIdList: List of [Integer]; AddHeaders: Boolean; Deletes: Boolean) RecordPayload: Text
+    internal procedure CreateCsvPayload(RecordRef: RecordRef; FieldIdList: List of [Integer]; AddHeaders: Boolean; Deletes: Boolean) RecordPayload: Text
     var
         ADLSESetup: Record "ADLSE Setup";
         FieldRef: FieldRef;
@@ -505,9 +511,11 @@ codeunit 11007177 "ADLSE Util"
         Payload.AppendLine();
 
         RecordPayload := Payload.ToText();
+
+        OnAfterCreateCsvPayload(RecordRef, FieldIdList, AddHeaders, Deletes, RecordPayload);
     end;
 
-    procedure IsTablePerCompany(TableID: Integer): Boolean
+    internal procedure IsTablePerCompany(TableID: Integer): Boolean
     var
         TableMetadata: Record "Table Metadata";
     begin
@@ -515,7 +523,7 @@ codeunit 11007177 "ADLSE Util"
             exit(TableMetadata.DataPerCompany);
     end;
 
-    procedure CreateFakeRecordForDeletedAction(ADLSEDeletedRecord: Record "ADLSE Deleted Record"; var RecordRef: RecordRef)
+    internal procedure CreateFakeRecordForDeletedAction(ADLSEDeletedRecord: Record "ADLSE Deleted Record"; var RecordRef: RecordRef)
     var
         TimestampFieldRef: FieldRef;
         SystemIdFieldRef: FieldRef;
@@ -532,7 +540,7 @@ codeunit 11007177 "ADLSE Util"
         SystemDateFieldRef.Value(0DT);
     end;
 
-    procedure GetTextValueForKeyInJson(Object: JsonObject; "Key": Text): Text
+    internal procedure GetTextValueForKeyInJson(Object: JsonObject; "Key": Text): Text
     var
         ValueToken: JsonToken;
         JValue: JsonValue;
@@ -542,7 +550,7 @@ codeunit 11007177 "ADLSE Util"
         exit(JValue.AsText());
     end;
 
-    procedure JsonTokenExistsWithValueInArray(Arr: JsonArray; PropertyName: Text; PropertyValue: Text): Boolean
+    internal procedure JsonTokenExistsWithValueInArray(Arr: JsonArray; PropertyName: Text; PropertyValue: Text): Boolean
     var
         Token: JsonToken;
         Obj: JsonObject;
@@ -554,5 +562,20 @@ codeunit 11007177 "ADLSE Util"
                 if PropertyToken.AsValue().AsText() = PropertyValue then
                     exit(true);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCsvHeader(RecordRef: RecordRef; FieldIdList: List of [Integer]; var RecordPayload: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateCsvPayload(RecordRef: RecordRef; FieldIdList: List of [Integer]; AddHeaders: Boolean; Deletes: Boolean; var RecordPayload: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDataLakeCompliantFieldName(FieldRef: FieldRef; var CompliantFieldName: Text)
+    begin
     end;
 }
