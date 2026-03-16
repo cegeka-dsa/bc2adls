@@ -14,7 +14,7 @@ codeunit 11007163 "ADLSE Communication"
         DataBlobPathComplete: Text;
         DataBlobBlockIDs: List of [Text];
         BlobContentLength: Integer;
-        LastRecordOnPayloadTimeStamp: BigInteger;
+        HighestTimeStampOnPayload: BigInteger;
         Payload: TextBuilder;
         LastFlushedTimeStamp: BigInteger;
         NumberOfFlushes: Integer;
@@ -287,7 +287,8 @@ codeunit 11007163 "ADLSE Communication"
         LastTimestampExported := LastFlushedTimeStamp;
 
         Payload.Append(RecordPayLoad);
-        LastRecordOnPayloadTimeStamp := RecordTimeStamp;
+        if RecordTimeStamp > HighestTimeStampOnPayload then
+            HighestTimeStampOnPayload := RecordTimeStamp;
     end;
 
     [TryFunction]
@@ -367,9 +368,9 @@ codeunit 11007163 "ADLSE Communication"
                 end;
         end;
 
-        LastFlushedTimeStamp := LastRecordOnPayloadTimeStamp;
+        LastFlushedTimeStamp := HighestTimeStampOnPayload;
         Payload.Clear();
-        LastRecordOnPayloadTimeStamp := 0;
+        HighestTimeStampOnPayload := 0;
         NumberOfFlushes += 1;
 
         ADLSE.OnTableExported(TableID, LastFlushedTimeStamp);
