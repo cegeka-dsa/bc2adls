@@ -86,6 +86,10 @@ page 11007169 "ADLSE Setup Tables"
                     ApplicationArea = All;
                     Editable = false;
                     ToolTip = 'Specifies last file number used when exporting data from this table.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '27.51';
+                    ObsoleteReason = 'Open Mirroring now uses GUIDs for file names instead of sequential numbering.';
                 }
                 field(LastHartbeat; Rec.GetLastHeartbeat())
                 {
