@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
-namespace bc2adls;
+namespace Zig.ADLSE;
 
-codeunit 82580 "ADLSE Token Cache"
+codeunit 11007452 "ADLSE Token Cache"
 {
     Access = Internal;
 
