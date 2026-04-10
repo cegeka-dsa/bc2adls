@@ -1028,6 +1028,16 @@
           <note from="Developer" annotates="general" priority="2">%1: blob name, %2: total waiting time in seconds, %3: Http Response</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ADLSE Gen 2 Util - NamedType TimedOutWaitingForLockOnBlobErr</note>
         </trans-unit>
+        <trans-unit id="Codeunit 582512233 - NamedType 4165240009" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There was an error while acquiring the authentication token, error request: %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1: error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ADLSE Http - NamedType AuthHttpRequestFailedErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 582512233 - NamedType 1695660489" size-unit="char" translate="yes" xml:space="preserve">
+          <source>There was an error while executing the HTTP request, error request: %1.</source>
+          <note from="Developer" annotates="general" priority="2">%1: error message</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ADLSE Http - NamedType HttpRequestFailedErr</note>
+        </trans-unit>
         <trans-unit id="Codeunit 582512233 - NamedType 4177342769" size-unit="char" translate="yes" xml:space="preserve">
           <source>Unsupported method: %1</source>
           <note from="Developer" annotates="general" priority="2">%1: http method name</note>
@@ -2282,6 +2292,16 @@
           <source>BC2ADLS Export</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">XmlPort BC2ADLS Export - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="XmlPort 184726496 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>BC2ADLS Import</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">XmlPort BC2ADLS Import - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="XmlPort 184726496 - Method 24927850 - NamedType 1273762815" size-unit="char" translate="yes" xml:space="preserve">
+          <source>With the import all existing ADLSE Tables and Fields will be deleted. Do you want to continue?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">XmlPort BC2ADLS Import - Method OnPreXmlPort - NamedType ConfirmQuestionMsg</note>
         </trans-unit>
         <trans-unit id="XmlPort 3918642433 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>BC2ADLS Import/Export</source>
