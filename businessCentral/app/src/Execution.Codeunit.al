@@ -32,6 +32,7 @@ codeunit 11007167 "ADLSE Execution"
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'r')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Sync Companies", 'r')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Current Session", 'rid')]
     internal procedure StartExport(var AdlseTable: Record "ADLSE Table")
     var
         ADLSESetupRec: Record "ADLSE Setup";
@@ -42,8 +43,8 @@ codeunit 11007167 "ADLSE Execution"
         ADLSECommunication: Codeunit "ADLSE Communication";
         ADLSESessionManager: Codeunit "ADLSE Session Manager";
         ADLSEExternalEvents: Codeunit "ADLSE External Events";
-        Counter: Integer;
         ADLSEUtil: Codeunit "ADLSE Util";
+        Counter: Integer;
         Started: Integer;
     begin
         ADLSESetup.CheckSetup(ADLSESetupRec);
