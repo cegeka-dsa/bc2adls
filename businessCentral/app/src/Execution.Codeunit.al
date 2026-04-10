@@ -32,7 +32,6 @@ codeunit 11007167 "ADLSE Execution"
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'r')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Sync Companies", 'r')]
-    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Current Session", 'rid')]
     internal procedure StartExport(var AdlseTable: Record "ADLSE Table")
     var
         ADLSESetupRec: Record "ADLSE Setup";
@@ -75,8 +74,10 @@ codeunit 11007167 "ADLSE Execution"
                         Started += 1;
             until ADLSETable.Next() = 0;
 
-        if ADLSESyncCompanies.Get(CompanyName()) then
+        if ADLSESyncCompanies.Get(CompanyName()) then begin
+            Commit(); // End the read-only transaction before deleting
             ADLSECurrentSession.Stop(Database::"ADLSE Sync Companies", EmitTelemetry, ADLSEUtil.GetTableCaption(Database::"ADLSE Sync Companies"));
+        end;
 
         Message(ExportStartedTxt, Started, Counter);
         if EmitTelemetry then
