@@ -43,6 +43,7 @@ codeunit 11007167 "ADLSE Execution"
         ADLSESessionManager: Codeunit "ADLSE Session Manager";
         ADLSEExternalEvents: Codeunit "ADLSE External Events";
         Counter: Integer;
+        ADLSEUtil: Codeunit "ADLSE Util";
         Started: Integer;
     begin
         ADLSESetup.CheckSetup(ADLSESetupRec);
@@ -72,6 +73,9 @@ codeunit 11007167 "ADLSE Execution"
                     if ADLSESessionManager.StartExport(ADLSETable."Table ID", EmitTelemetry) then
                         Started += 1;
             until ADLSETable.Next() = 0;
+
+        if ADLSESyncCompanies.Get(CompanyName()) then
+            ADLSECurrentSession.Stop(Database::"ADLSE Sync Companies", EmitTelemetry, ADLSEUtil.GetTableCaption(Database::"ADLSE Sync Companies"));
 
         Message(ExportStartedTxt, Started, Counter);
         if EmitTelemetry then
