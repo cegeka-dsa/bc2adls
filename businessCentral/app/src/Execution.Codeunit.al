@@ -42,8 +42,8 @@ codeunit 11007167 "ADLSE Execution"
         ADLSECommunication: Codeunit "ADLSE Communication";
         ADLSESessionManager: Codeunit "ADLSE Session Manager";
         ADLSEExternalEvents: Codeunit "ADLSE External Events";
-        Counter: Integer;
         ADLSEUtil: Codeunit "ADLSE Util";
+        Counter: Integer;
         Started: Integer;
     begin
         ADLSESetup.CheckSetup(ADLSESetupRec);
@@ -74,8 +74,10 @@ codeunit 11007167 "ADLSE Execution"
                         Started += 1;
             until ADLSETable.Next() = 0;
 
-        if ADLSESyncCompanies.Get(CompanyName()) then
+        if ADLSESyncCompanies.Get(CompanyName()) then begin
+            Commit(); // End the read-only transaction before deleting
             ADLSECurrentSession.Stop(Database::"ADLSE Sync Companies", EmitTelemetry, ADLSEUtil.GetTableCaption(Database::"ADLSE Sync Companies"));
+        end;
 
         Message(ExportStartedTxt, Started, Counter);
         if EmitTelemetry then
