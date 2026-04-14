@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
+
 permissionset 11007160 "ADLSE - Execute"
 {
     /// <summary>
