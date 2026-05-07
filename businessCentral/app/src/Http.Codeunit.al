@@ -223,7 +223,7 @@ codeunit 11007171 "ADLSE Http"
     end;
 
     [NonDebuggable]
-    local procedure AcquireTokenOAuth2(var AuthError: Text) AccessToken: Text
+    local procedure AcquireTokenOAuth2(var AuthError: Text) AccessToken: SecretText
     var
         ADLSESetup: Record "ADLSE Setup";
         ADLSETokenCache: Codeunit "ADLSE Token Cache";
