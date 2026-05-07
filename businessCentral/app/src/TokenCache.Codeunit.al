@@ -2,74 +2,36 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 namespace Zig.ADLSE;
 
+// Token cache uses in-memory storage (SingleInstance) instead of IsolatedStorage
+// to avoid lock conflicts between parallel export sessions.
+// Each session caches its own token; cross-session sharing is not needed
+
 codeunit 11007452 "ADLSE Token Cache"
 {
     Access = Internal;
+    SingleInstance = true;
 
     var
-        AccessTokenKeyNameTok: Label 'adlse-access-token', Locked = true;
-        TokenExpiresAtKeyNameTok: Label 'adlse-token-expires', Locked = true;
+        CachedToken: SecretText;
+        CachedTokenExpiry: DateTime;
 
     [NonDebuggable]
-    procedure GetCachedToken(): Text
-    var
-        Token: Text;
+    procedure GetCachedToken(): SecretText
     begin
-        if not IsolatedStorage.Contains(AccessTokenKeyNameTok, DataScope::Module) then
-            exit('');
-#pragma warning disable LC0043
-        IsolatedStorage.Get(AccessTokenKeyNameTok, DataScope::Module, Token);
-#pragma warning restore LC0043
-        exit(Token);
-    end;
-
-    procedure GetTokenExpiry(): DateTime
-    var
-        ExpiresAtText: Text;
-        ExpiresAt: DateTime;
-    begin
-#pragma warning disable LC0043
-        if not IsolatedStorage.Get(TokenExpiresAtKeyNameTok, DataScope::Module, ExpiresAtText) then
-            exit(0DT);
-#pragma warning restore LC0043
-        if not Evaluate(ExpiresAt, ExpiresAtText, 9) then
-            exit(0DT);
-        exit(ExpiresAt);
+        exit(CachedToken);
     end;
 
     [NonDebuggable]
-    procedure SetToken(Token: Text; ExpiresAt: DateTime)
+    procedure SetToken(Token: SecretText; ExpiresAt: DateTime)
     begin
-        // Clear any existing cache entries before writing to avoid "record already exists"
-        // errors from concurrent sessions. Deleting first ensures IsolatedStorage.Set always
-        // performs an INSERT on a clean state, which is safe on both SaaS and On-Premises.
-        ClearCache();
-        WriteToCache(Token, ExpiresAt);
-    end;
-
-    [NonDebuggable]
-    local procedure WriteToCache(Token: Text; ExpiresAt: DateTime)
-    begin
-#pragma warning disable LC0043
-        IsolatedStorage.Set(AccessTokenKeyNameTok, Token, DataScope::Module);
-        IsolatedStorage.Set(TokenExpiresAtKeyNameTok, Format(ExpiresAt, 0, 9), DataScope::Module);
-#pragma warning restore LC0043
+        CachedToken := Token;
+        CachedTokenExpiry := ExpiresAt;
     end;
 
     procedure IsTokenValid(): Boolean
     begin
-        if GetCachedToken() = '' then
+        if CachedToken.IsEmpty() then
             exit(false);
-        exit(CurrentDateTime() < GetTokenExpiry());
-    end;
-
-    procedure ClearCache()
-    begin
-#pragma warning disable LC0043
-        if IsolatedStorage.Contains(AccessTokenKeyNameTok, DataScope::Module) then
-            IsolatedStorage.Delete(AccessTokenKeyNameTok, DataScope::Module);
-        if IsolatedStorage.Contains(TokenExpiresAtKeyNameTok, DataScope::Module) then
-            IsolatedStorage.Delete(TokenExpiresAtKeyNameTok, DataScope::Module);
-#pragma warning restore LC0043
+        exit(CurrentDateTime() < CachedTokenExpiry);
     end;
 }
