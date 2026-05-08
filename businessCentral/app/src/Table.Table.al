@@ -8,7 +8,6 @@ using System.Reflection;
 table 11007171 "ADLSE Table"
 #pragma warning restore
 {
-    Access = Internal;
     Caption = 'ADLSE Table';
     DataClassification = CustomerContent;
     DataPerCompany = false;
@@ -23,6 +22,7 @@ table 11007171 "ADLSE Table"
             AllowInCustomizations = AsReadOnly;
             Editable = false;
             Caption = 'Table ID';
+            Access = Internal;
         }
         field(2; State; Integer)
         {
@@ -37,6 +37,7 @@ table 11007171 "ADLSE Table"
             Editable = false;
             Caption = 'Enabled';
             ToolTip = 'Specifies the state of the table. Set this checkmark to export this table, otherwise not.';
+            Access = Internal;
 
             trigger OnValidate()
             var
@@ -66,6 +67,7 @@ table 11007171 "ADLSE Table"
             TableRelation = "ADLSE Export Category Table";
             DataClassification = CustomerContent;
             ToolTip = 'Specifies the Export Category which can be linked to tables which are part of the export to Azure Datalake. The Category can be used to schedule the export.';
+            Access = Internal;
         }
         field(15; ExportFileNumber; Integer)
         {
@@ -74,11 +76,13 @@ table 11007171 "ADLSE Table"
             ObsoleteState = Pending;
             ObsoleteTag = '27.51';
             ObsoleteReason = 'Open Mirroring now uses GUIDs for file names instead of sequential numbering.';
+            Access = Internal;
         }
         field(17; "Initial Load Start Date"; Date)
         {
             Caption = 'Initial Load Start Date';
             ToolTip = 'Specifies the starting date for the initial data load. Only records with SystemModifiedAt >= this date will be exported on the first export. Leave blank to export all historical data.';
+            Access = Internal;
         }
         field(16; "Process Type"; Enum "ADLSE Process Type")
         {
@@ -88,6 +92,7 @@ table 11007171 "ADLSE Table"
             ObsoleteTag = '27.44';
             ObsoleteReason = 'This field will be removed in a future release because readuncommitted will be the default behavior because of performance.';
             ToolTip = 'OBSOLETE - Specifies how this table should be processed during export. Standard uses normal processing, Ignore Read Isolation disables read isolation for performance, and Commit Externally uses external commit for large tables.';
+            Access = Internal;
         }
     }
 
@@ -166,9 +171,10 @@ table 11007171 "ADLSE Table"
         StoppedByUserLbl: Label 'Session stopped by user.';
         InvalidFieldNotificationSent: List of [Integer];
         InvalidFieldConfiguredMsg: Label 'The following fields have been incorrectly enabled for exports in the table %1: %2', Comment = '%1 = table name; %2 = List of invalid field names';
+        SkippedPrimaryKeyFieldsMsg: Label 'The following primary key fields of table %1 have an unsupported type and have been skipped from the export: %2. The exported data may be incomplete.', Comment = '%1 = table name; %2 = list of skipped field names';
         WarnOfSchemaChangeQst: Label 'Data may have been exported from this table before. Changing the export schema now may cause unexpected side- effects. You may reset the table first so all the data shall be exported afresh. Do you still wish to continue?';
 
-    procedure FieldsChosen(): Integer
+    internal procedure FieldsChosen(): Integer
     var
         ADLSEField: Record "ADLSE Field";
     begin
@@ -178,19 +184,25 @@ table 11007171 "ADLSE Table"
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'i')]
-    procedure Add(TableID: Integer)
+    internal procedure Add(TableID: Integer)
     var
         ADLSEExternalEvents: Codeunit "ADLSE External Events";
+        ADLSEUtil: Codeunit "ADLSE Util";
+        SkippedFields: List of [Text];
     begin
         if not CheckTableCanBeExportedFrom(TableID) then
             Error(TableCannotBeExportedErr, TableID, GetLastErrorText());
+
         Rec.Init();
         Rec."Table ID" := TableID;
         Rec.Enabled := true;
         Rec.Insert(true);
 
-        AddPrimaryKeyFields();
+        AddPrimaryKeyFields(SkippedFields);
         ADLSEExternalEvents.OnAddTable(Rec);
+
+        if SkippedFields.Count() > 0 then
+            Message(SkippedPrimaryKeyFieldsMsg, ADLSEUtil.GetTableCaption(TableID), ADLSEUtil.Concatenate(SkippedFields));
     end;
 
     [TryFunction]
@@ -217,7 +229,7 @@ table 11007171 "ADLSE Table"
             Error(TableNotNormalErr, TableCaption);
     end;
 
-    procedure CheckNotExporting()
+    internal procedure CheckNotExporting()
     var
         ADLSEUtil: Codeunit "ADLSE Util";
     begin
@@ -237,13 +249,13 @@ table 11007171 "ADLSE Table"
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rm')]
-    procedure ResetSelected()
+    internal procedure ResetSelected()
     begin
         ResetSelected(false);
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rm')]
-    procedure ResetSelected(AllCompanies: Boolean)
+    internal procedure ResetSelected(AllCompanies: Boolean)
     var
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
@@ -303,18 +315,20 @@ table 11007171 "ADLSE Table"
         ADLSEField: Record "ADLSE Field";
         Field: Record Field;
         ADLSESetup: Codeunit "ADLSE Setup";
+        ADLSEUtil: Codeunit "ADLSE Util";
     begin
         ADLSEField.SetRange("Table ID", Rec."Table ID");
         ADLSEField.SetRange(Enabled, true);
         if ADLSEField.FindSet() then
             repeat
                 Field.Get(ADLSEField."Table ID", ADLSEField."Field ID");
+                ADLSEUtil.CheckFieldTypeForExport(Field);
                 ADLSESetup.CheckFieldCanBeExported(Field);
             until ADLSEField.Next() = 0;
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'r')]
-    procedure ListInvalidFieldsBeingExported() FieldList: List of [Text]
+    internal procedure ListInvalidFieldsBeingExported() FieldList: List of [Text]
     var
         ADLSEField: Record "ADLSE Field";
         ADLSESetup: Codeunit "ADLSE Setup";
@@ -342,7 +356,7 @@ table 11007171 "ADLSE Table"
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'rm')]
-    procedure AddAllFields()
+    internal procedure AddAllFields()
     var
         ADLSEFields: Record "ADLSE Field";
     begin
@@ -357,7 +371,7 @@ table 11007171 "ADLSE Table"
             until ADLSEFields.Next() = 0;
     end;
 
-    procedure GetLastHeartbeat(): DateTime
+    internal procedure GetLastHeartbeat(): DateTime
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
     begin
@@ -367,7 +381,7 @@ table 11007171 "ADLSE Table"
         exit(ADLSETableLastTimestamp.SystemModifiedAt)
     end;
 
-    procedure GetActiveSessionId(): Integer
+    internal procedure GetActiveSessionId(): Integer
     var
         ExpSessionId: Integer;
     begin
@@ -378,7 +392,7 @@ table 11007171 "ADLSE Table"
             exit(ExpSessionId);
     end;
 
-    procedure GetCurrentSessionId(): Integer
+    internal procedure GetCurrentSessionId(): Integer
     var
         CurrentSession: Record "ADLSE Current Session";
     begin
@@ -388,7 +402,7 @@ table 11007171 "ADLSE Table"
         exit(0);
     end;
 
-    procedure StopActiveSession()
+    internal procedure StopActiveSession()
     var
         CurrentSession: Record "ADLSE Current Session";
         Run: Record "ADLSE Run";
@@ -403,22 +417,40 @@ table 11007171 "ADLSE Table"
         Run.CancelRun(Rec."Table ID");
     end;
 
-    local procedure AddPrimaryKeyFields()
+    local procedure AddPrimaryKeyFields(var SkippedFields: List of [Text])
     var
         Field: Record Field;
         ADLSEField: Record "ADLSE Field";
+        ADLSEField2: Record "ADLSE Field";
     begin
         Field.SetRange(TableNo, Rec."Table ID");
         Field.SetRange(IsPartOfPrimaryKey, true);
         if Field.Findset() then
             repeat
-                if not ADLSEField.Get(Rec."Table ID", Field."No.") then begin
-                    ADLSEField."Table ID" := Field.TableNo;
-                    ADLSEField."Field ID" := Field."No.";
-                    ADLSEField.Enabled := true;
-                    ADLSEField.Insert();
+                if IsFieldSupportedForExport(Field) then begin
+                    if not ADLSEField.Get(Rec."Table ID", Field."No.") then begin
+                        ADLSEField."Table ID" := Field.TableNo;
+                        ADLSEField."Field ID" := Field."No.";
+                        ADLSEField.Enabled := true;
+                        ADLSEField.Insert();
+                    end;
+                end else begin
+                    SkippedFields.Add(Field."Field Caption");
+                    // Also remove a previously-enabled-but-now-unsupported PK row, if any
+                    if ADLSEField2.Get(Rec."Table ID", Field."No.") then
+                        ADLSEField2.Delete(false);
                 end;
             until Field.Next() = 0;
+    end;
+
+    [TryFunction]
+    local procedure IsFieldSupportedForExport(Field: Record Field)
+    var
+        ADLSESetup: Codeunit "ADLSE Setup";
+        ADLSEUtil: Codeunit "ADLSE Util";
+    begin
+        ADLSEUtil.CheckFieldTypeForExport(Field);
+        ADLSESetup.CheckFieldCanBeExported(Field);
     end;
 
     local procedure UpsertAllTableIds(Rowmarker: Integer)
@@ -459,7 +491,7 @@ table 11007171 "ADLSE Table"
         end;
     end;
 
-    procedure DoChooseFields()
+    internal procedure DoChooseFields()
     var
         ADLSETableLastTimestamp: Record "ADLSE Table Last Timestamp";
         ADLSESetup: Codeunit "ADLSE Setup";
@@ -470,7 +502,7 @@ table 11007171 "ADLSE Table"
         ADLSESetup.ChooseFieldsToExport(Rec);
     end;
 
-    procedure IssueNotificationIfInvalidFieldsConfiguredToBeExported()
+    internal procedure IssueNotificationIfInvalidFieldsConfiguredToBeExported()
     var
         ADLSEUtil: Codeunit "ADLSE Util";
         InvalidFieldNotification: Notification;

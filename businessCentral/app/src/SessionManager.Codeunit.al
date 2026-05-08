@@ -74,6 +74,8 @@ codeunit 11007173 "ADLSE Session Manager"
                 ADLSEExecution.Log('ADLSE-024', 'No changes to be exported.', Verbosity::Normal, CustomDimensions);
             end;
         end;
+
+        OnAfterStartExport(TableID, ExportWasPending, ForceExport, EmitTelemetry, Started);
     end;
 
     local procedure DataChangesExist(TableID: Integer): Boolean
@@ -196,5 +198,10 @@ codeunit 11007173 "ADLSE Session Manager"
         if IsolatedStorage.Set(PendingTablesKeyTxt, Value, DataScope::Company) then
             Commit(); // changing isolated storage triggers a write transaction      
 #pragma warning restore LC0043      
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterStartExport(TableID: Integer; ExportWasPending: Boolean; ForceExport: Boolean; EmitTelemetry: Boolean; var Started: Boolean)
+    begin
     end;
 }

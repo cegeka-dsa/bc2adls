@@ -3,6 +3,7 @@
 namespace Zig.ADLSE;
 
 using System.Globalization;
+using System.Text;
 using System.Threading;
 
 page 11007165 "ADLSE Setup"
@@ -90,25 +91,75 @@ page 11007165 "ADLSE Setup"
                             ADLSECredentials.SetClientID(ClientID);
                         end;
                     }
-                    field("Client secret"; ClientSecret)
+                    field(UseCertificateAuthentication; Rec."Use Certificate Authentication")
                     {
-                        Caption = 'Client secret';
-                        ExtendedDatatype = Masked;
-                        ToolTip = 'Specifies the client secret for the Azure App Registration that accesses the storage account.';
+                        Caption = 'Use Certificate Authentication';
+                        ToolTip = 'Specifies whether to use a certificate for OAuth2 authentication instead of a client secret.';
 
                         trigger OnValidate()
                         begin
-                            ADLSECredentials.SetClientSecret(ClientSecret);
+                            UpdateAuthVisibility();
+                            CurrPage.Update(true);
                         end;
+                    }
+                    group(SecretAuthGroup)
+                    {
+                        ShowCaption = false;
+                        Visible = SecretVisible;
+
+                        field("Client secret"; ClientSecret)
+                        {
+                            Caption = 'Client secret';
+                            ExtendedDatatype = Masked;
+                            ToolTip = 'Specifies the client secret for the Azure App Registration that accesses the storage account.';
+
+                            trigger OnValidate()
+                            begin
+                                ADLSECredentials.SetClientSecret(ClientSecret);
+                                CurrPage.Update(true);
+                            end;
+                        }
+                    }
+                    group(CertAuthGroup)
+                    {
+                        ShowCaption = false;
+                        Visible = CertificateVisible;
+
+                        field(CertificateUploadStatus; CertificateStatusText)
+                        {
+                            Caption = 'Certificate';
+                            Editable = false;
+                            ToolTip = 'Specifies the PFX certificate used for OAuth2 authentication. Click to upload a new certificate file (.pfx or .p12).';
+
+                            trigger OnDrillDown()
+                            begin
+                                UploadCertificate();
+                                UpdateCertificateStatus();
+                                CurrPage.Update(false);
+                            end;
+                        }
+                        field(ClientCertificatePassword; ClientCertificatePassword)
+                        {
+                            Caption = 'Certificate Password';
+                            ExtendedDatatype = Masked;
+                            ToolTip = 'Specifies the password for the PFX certificate.';
+
+                            trigger OnValidate()
+                            begin
+                                ADLSECredentials.SetClientCertificatePassword(ClientCertificatePassword);
+                            end;
+                        }
                     }
                 }
             }
             group(Execution)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Not needed anymore since page redesign.';
+                ObsoleteTag = '27.56';
                 Visible = false;
                 Enabled = false;
             }
-
             group(ExportSettings)
             {
                 Caption = 'Export Settings';
@@ -143,6 +194,24 @@ page 11007165 "ADLSE Setup"
                 field("Delivered DateTime"; Rec."Delivered DateTime")
                 {
                     Importance = Additional;
+                }
+                field("Use Primary Key for Mirroring"; Rec."Use Primary Key for Mirroring")
+                {
+                    Importance = Additional;
+                    Editable = FabricOpenMirroring;
+
+                    trigger OnValidate()
+                    var
+                        ADLSETable: Record "ADLSE Table";
+                    begin
+                        if not Confirm(UsePrimaryKeyForMirroringConfirmQst) then begin
+                            Rec."Use Primary Key for Mirroring" := xRec."Use Primary Key for Mirroring";
+                            exit;
+                        end;
+                        Rec."Schema Exported On" := 0DT;
+                        ADLSETable.Reset();
+                        ADLSETable.ResetSelected();
+                    end;
                 }
             }
 
@@ -408,8 +477,11 @@ page 11007165 "ADLSE Setup"
 
     var
         FabricOpenMirroring, AzureDataLake : Boolean;
+        CertificateVisible, SecretVisible : Boolean;
         ClientSecretLbl: Label 'Secret not shown';
         ClientIdLbl: Label 'ID not shown';
+        CertificatePasswordSetLbl: Label 'Password set';
+        CertificateStatusText: Text;
 
     trigger OnInit()
     begin
@@ -420,6 +492,10 @@ page 11007165 "ADLSE Setup"
             ClientID := ClientIdLbl;
         if ADLSECredentials.IsClientSecretSet() then
             ClientSecret := ClientSecretLbl;
+        if ADLSECredentials.GetClientCertificatePassword() <> '' then
+            ClientCertificatePassword := CertificatePasswordSetLbl;
+        UpdateAuthVisibility();
+        UpdateCertificateStatus();
     end;
 
     trigger OnAfterGetRecord()
@@ -434,6 +510,8 @@ page 11007165 "ADLSE Setup"
         UpdateNotificationIfAnyTableExportFailed();
         AzureDataLake := Rec."Storage Type" = Rec."Storage Type"::"Azure Data Lake";
         FabricOpenMirroring := Rec."Storage Type" = Rec."Storage Type"::"Open Mirroring";
+        UpdateAuthVisibility();
+        UpdateCertificateStatus();
     end;
 
     var
@@ -446,9 +524,44 @@ page 11007165 "ADLSE Setup"
         ClientID: Text;
         [NonDebuggable]
         ClientSecret: Text;
+        [NonDebuggable]
+        ClientCertificatePassword: Text;
         OldLogsExist: Boolean;
         FailureNotificationID: Guid;
         ExportFailureNotificationMsg: Label 'Data from one or more tables failed to export on the last run. Please check the tables below to see the error(s).';
+        UsePrimaryKeyForMirroringConfirmQst: Label 'Changing this setting requires clearing the exported schema and resetting all tables. All data will be re-exported from scratch on the next run. Do you want to continue?';
+
+    local procedure UpdateAuthVisibility()
+    begin
+        CertificateVisible := Rec."Use Certificate Authentication";
+        SecretVisible := not Rec."Use Certificate Authentication";
+    end;
+
+    local procedure UpdateCertificateStatus()
+    var
+        NoCertificateLbl: Label 'No certificate (click to upload)';
+        CertificateUploadedLbl: Label 'Certificate uploaded (click to change)';
+    begin
+        if ADLSECredentials.IsClientCertificateSet() then
+            CertificateStatusText := CertificateUploadedLbl
+        else
+            CertificateStatusText := NoCertificateLbl;
+    end;
+
+    [NonDebuggable]
+    local procedure UploadCertificate()
+    var
+        Base64Convert: Codeunit "Base64 Convert";
+        InStr: InStream;
+        CertificateBase64: Text;
+        CertificateFilterTxt: Label 'Certificate Files (*.pfx;*.p12)|*.pfx;*.p12|All Files (*.*)|*.*', Locked = true;
+        FileNotUploadedErr: Label 'Certificate file was not uploaded.';
+    begin
+        if not UploadIntoStream(CertificateFilterTxt, InStr) then
+            Error(FileNotUploadedErr);
+        CertificateBase64 := Base64Convert.ToBase64(InStr);
+        ADLSECredentials.SetClientCertificate(CertificateBase64);
+    end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'r')]
     local procedure UpdateNotificationIfAnyTableExportFailed()
