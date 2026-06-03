@@ -213,6 +213,30 @@ page 11007165 "ADLSE Setup"
                         ADLSETable.ResetSelected();
                     end;
                 }
+                field("Use Primary Key for Mirroring"; Rec."Use Primary Key for Mirroring")
+                {
+                    Importance = Additional;
+                    Editable = FabricOpenMirroring;
+
+                    trigger OnValidate()
+                    var
+                        ADLSETable: Record "ADLSE Table";
+                    begin
+                        if not Confirm(UsePrimaryKeyForMirroringConfirmQst) then begin
+                            Rec."Use Primary Key for Mirroring" := xRec."Use Primary Key for Mirroring";
+                            exit;
+                        end;
+                        Rec."Schema Exported On" := 0DT;
+                        ADLSETable.Reset();
+                        ADLSETable.ResetSelected();
+                    end;
+                }
+                field("Distinguish Full Incremental"; Rec."Distinguish Full Incremental")
+                {
+                    Importance = Additional;
+                    Visible = AzureDataLake;
+                    Enabled = AzureDataLake;
+                }
             }
 
             group(DataFormatSettings)
