@@ -2,7 +2,7 @@
   "id": "03486619-1622-4261-ae0e-b366b3c96e3c",
   "name": "Zig365 Insights Connector Tests",
   "publisher": "Zig",
-  "version": "28.57.0.0",
+  "version": "28.59.0.0",
   "brief": "Tests for Azure Data Lake Storage Export",
   "description": "Tests for Azure Data Lake Storage Export",
   "privacyStatement": "",
@@ -43,9 +43,9 @@
       "version": "27.0.0.0"
     },
     {
-      "publisher": "Zig",
-      "name": "Zig365 Insights Connector",
-      "id": "f50ed17c-be40-4d00-ad13-2e5132038664",
+      "publisher": "The bc2adls team",
+      "name": "Azure Data Lake Storage Export",
+      "id": "1688530c-452c-4b06-8947-ab4bf5b26053",
       "version": "28.57.0.0"
     }
   ],
