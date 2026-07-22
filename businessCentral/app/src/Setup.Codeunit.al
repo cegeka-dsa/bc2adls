@@ -101,6 +101,29 @@ codeunit 11007174 "ADLSE Setup"
         ADLSECredentials.Check();
     end;
 
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'rm')]
+    [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Current Session", 'd')]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::System.DataAdministration."Environment Cleanup", OnClearDatabaseConfig, '', false, false)]
+    local procedure EnvironmentCleanup_OnClearDatabaseConfig(SourceEnv: Enum System.DataAdministration."Environment Type"; DestinationEnv: Enum System.DataAdministration."Environment Type")
+    var
+        ADLSESetup: Record "ADLSE Setup";
+        ADLSECurrentSession: Record "ADLSE Current Session";
+    begin
+        if DestinationEnv <> DestinationEnv::Sandbox then
+            exit;
+        if not ADLSESetup.Exists() then
+            exit;
+        ADLSESetup."Schema Exported On" := 0DT;
+        ADLSESetup.Workspace := '';
+        ADLSESetup.Lakehouse := '';
+        ADLSESetup.LandingZone := '';
+        ADLSESetup.Container := '';
+        ADLSESetup."Account Name" := '';
+        ADLSESetup.Modify(false);
+        ADLSECurrentSession.DeleteAll(true);
+    end;
+
+
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Field", 'rd')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Table", 'rd')]
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Setup", 'm')]
