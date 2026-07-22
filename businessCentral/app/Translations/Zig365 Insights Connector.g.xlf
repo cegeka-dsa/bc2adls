@@ -148,6 +148,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Deleted Record - Field Entry No. - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 2785369961 - Field 2231518605 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Primary Key Values</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Deleted Record - Field Primary Key Values - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 2785369961 - Field 3076185996 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>System ID</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -513,6 +518,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Delivered DateTime - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4249570476 - Field 2223057862 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether the generated CSV file names in Azure Data Lake should be suffixed with _full or _incremental, so that downstream pipelines can differentiate between a full export (first run, or first run after a reset) and an incremental export. Only applies to the Azure Data Lake storage type.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Distinguish Full Incremental - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Table 4249570476 - Field 2223057862 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Distinguish full and incremental exports</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Distinguish Full Incremental - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4249570476 - Field 2183130790 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if operational telemetry will be emitted to this extension publisher's telemetry pipeline. You will have to configure a telemetry account for this extension first.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -628,6 +643,16 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Translations - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Table 4249570476 - Field 128091690 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if a certificate will be used for OAuth2 authentication instead of a client secret.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Use Certificate Authentication - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Table 4249570476 - Field 128091690 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Certificate Authentication</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Use Certificate Authentication - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Table 4249570476 - Field 3808103248 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if the captions of fields will be used instead of names. Be aware that the user of the export in all companies must have the same language.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -647,6 +672,16 @@
           <source>IDs for Duplicates Only</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Use IDs for Duplicates Only - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Table 4249570476 - Field 3765130430 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies if the primary key fields of tables should be used as key columns in the Open Mirroring metadata instead of SystemId. Enable this if records are recreated with new SystemIds causing duplicates in the mirrored database.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Use Primary Key for Mirroring - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Table 4249570476 - Field 3765130430 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Primary Key for Mirroring</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Setup - Field Use Primary Key for Mirroring - Property Caption</note>
         </trans-unit>
         <trans-unit id="Table 4249570476 - Field 334359692 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies if the captions of Tables will be used instead of names. Be aware that the user of the export in all companies must have the same language.</source>
@@ -692,6 +727,11 @@
           <source>The following fields have been incorrectly enabled for exports in the table %1: %2</source>
           <note from="Developer" annotates="general" priority="2">%1 = table name; %2 = List of invalid field names</note>
           <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Table - NamedType InvalidFieldConfiguredMsg</note>
+        </trans-unit>
+        <trans-unit id="Table 3041034051 - NamedType 146479741" size-unit="char" translate="yes" xml:space="preserve">
+          <source>The following primary key fields of table %1 have an unsupported type and have been skipped from the export: %2. The exported data may be incomplete.</source>
+          <note from="Developer" annotates="general" priority="2">%1 = table name; %2 = list of skipped field names</note>
+          <note from="Xliff Generator" annotates="general" priority="3">Table ADLSE Table - NamedType SkippedPrimaryKeyFieldsMsg</note>
         </trans-unit>
         <trans-unit id="Table 3041034051 - NamedType 2570556267" size-unit="char" translate="yes" xml:space="preserve">
           <source>Session stopped by user.</source>
@@ -1027,6 +1067,11 @@
           <source>Timed out waiting to acquire lease on blob %1 after %2 seconds. %3</source>
           <note from="Developer" annotates="general" priority="2">%1: blob name, %2: total waiting time in seconds, %3: Http Response</note>
           <note from="Xliff Generator" annotates="general" priority="3">Codeunit ADLSE Gen 2 Util - NamedType TimedOutWaitingForLockOnBlobErr</note>
+        </trans-unit>
+        <trans-unit id="Codeunit 582512233 - NamedType 1617041183" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Failed to acquire an access token. Verify the credentials configured in the ADLSE Setup.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Codeunit ADLSE Http - NamedType AcquireTokenFailedErr</note>
         </trans-unit>
         <trans-unit id="Codeunit 582512233 - NamedType 4165240009" size-unit="char" translate="yes" xml:space="preserve">
           <source>There was an error while acquiring the authentication token, error request: %1.</source>
@@ -1513,6 +1558,11 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4249570476 - NamedType 1741368782" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Password set</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - NamedType CertificatePasswordSetLbl</note>
+        </trans-unit>
         <trans-unit id="Page 4249570476 - NamedType 366675938" size-unit="char" translate="yes" xml:space="preserve">
           <source>ID not shown</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1527,6 +1577,26 @@
           <source>Data from one or more tables failed to export on the last run. Please check the tables below to see the error(s).</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - NamedType ExportFailureNotificationMsg</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - NamedType 4151552178" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Changing this setting requires clearing the exported schema and resetting all tables. All data will be re-exported from scratch on the next run. Do you want to continue?</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - NamedType UsePrimaryKeyForMirroringConfirmQst</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Method 2555594772 - NamedType 76040314" size-unit="char" translate="yes" xml:space="preserve">
+          <source>No certificate (click to upload)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Method UpdateCertificateStatus - NamedType NoCertificateLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Method 2555594772 - NamedType 2553944727" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Certificate uploaded (click to change)</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Method UpdateCertificateStatus - NamedType CertificateUploadedLbl</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Method 3704836514 - NamedType 3077000456" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Certificate file was not uploaded.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Method UploadCertificate - NamedType FileNotUploadedErr</note>
         </trans-unit>
         <trans-unit id="Page 4249570476 - Control 3266712818 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Data Format</source>
@@ -1548,6 +1618,26 @@
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control Access - Property Caption</note>
         </trans-unit>
+        <trans-unit id="Page 4249570476 - Control 349922534 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the PFX certificate used for OAuth2 authentication. Click to upload a new certificate file (.pfx or .p12).</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control CertificateUploadStatus - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Control 349922534 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Certificate</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control CertificateUploadStatus - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Control 1133333245 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies the password for the PFX certificate.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control ClientCertificatePassword - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Control 1133333245 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Certificate Password</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control ClientCertificatePassword - Property Caption</note>
+        </trans-unit>
         <trans-unit id="Page 4249570476 - Control 652819368 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
           <source>Specifies the application client ID for the Azure App Registration that accesses the storage account.</source>
           <note from="Developer" annotates="general" priority="2"></note>
@@ -1567,6 +1657,16 @@
           <source>Client secret</source>
           <note from="Developer" annotates="general" priority="2"></note>
           <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control Client secret - Property Caption</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Control 156530210 - Property 1295455071" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Specifies whether to use a certificate for OAuth2 authentication instead of a client secret.</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control UseCertificateAuthentication - Property ToolTip</note>
+        </trans-unit>
+        <trans-unit id="Page 4249570476 - Control 156530210 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
+          <source>Use Certificate Authentication</source>
+          <note from="Developer" annotates="general" priority="2"></note>
+          <note from="Xliff Generator" annotates="general" priority="3">Page ADLSE Setup - Control UseCertificateAuthentication - Property Caption</note>
         </trans-unit>
         <trans-unit id="Page 4249570476 - Control 1267408499 - Property 2879900210" size-unit="char" translate="yes" xml:space="preserve">
           <source>Azure Data Lake</source>
