@@ -315,7 +315,7 @@ codeunit 11007163 "ADLSE Communication"
         ADLSESetup: Record "ADLSE Setup";
     begin
         if ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Open Mirroring" then
-            if DataBlobPath = '' then
+            if (DataBlobPath = '') and (Payload.Length() > 0) then
                 CreateDataBlob();
         FlushPayload();
 
