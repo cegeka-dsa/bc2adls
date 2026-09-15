@@ -112,8 +112,18 @@ codeunit 11007166 "ADLSE Execute"
         ADLSECommunicationDeletions: Codeunit "ADLSE Communication";
         FieldIdList: List of [Integer];
         DidUpserts: Boolean;
+        DidDeletes: Boolean;
+        CombineUpsertsAndDeletes: Boolean;
+        FlushedUpdatedTimeStamp: BigInteger;
+        FlushedDeletedEntryNo: BigInteger;
+        ErrorMessage: ErrorInfo;
     begin
+        ADLSESetup.GetSingleton();
         FieldIdList := CreateFieldListForTable(TableID);
+
+        // For Open Mirroring delta (incremental) exports, write upserts and deletes into a single file. This avoids two
+        // files being created back-to-back, which Fabric may ingest in the wrong order. Initial (full) exports are excluded.
+        CombineUpsertsAndDeletes := (ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Open Mirroring") and (UpdatedLastTimeStamp <> 0);
 
         // first export the upserts
         ADLSECommunication.Init(TableID, FieldIdList, UpdatedLastTimeStamp, EmitTelemetry);
@@ -121,12 +131,42 @@ codeunit 11007166 "ADLSE Execute"
         if ADLSESetup.GetStorageType() <> ADLSESetup."Storage Type"::"Open Mirroring" then //TODO is this really needed for open mirroring?
             ADLSECommunication.CheckEntity(CDMDataFormat, EntityJsonNeedsUpdate, ManifestJsonsNeedsUpdate, false);
 
-        ExportTableUpdates(TableID, FieldIdList, ADLSECommunication, UpdatedLastTimeStamp, DidUpserts);
+        if CombineUpsertsAndDeletes then begin
+            ADLSECommunication.EnableCombinedExport(DeletedLastEntryNo);
 
-        // then export the deletes
-        ADLSECommunicationDeletions.Init(TableID, FieldIdList, DeletedLastEntryNo, EmitTelemetry);
-        // entity has been already checked above
-        ExportTableDeletes(TableID, ADLSECommunicationDeletions, DeletedLastEntryNo, DidUpserts);
+            // collect upserts and deletes into the same payload without flushing in between
+            ExportTableUpdates(TableID, FieldIdList, ADLSECommunication, UpdatedLastTimeStamp, DidUpserts, false);
+            ExportTableDeletes(TableID, ADLSECommunication, DeletedLastEntryNo, DidUpserts, DidDeletes, false);
+
+            // single flush for the combined payload, capturing both progress counters separately
+            if DidUpserts or DidDeletes then
+                if ADLSECommunication.TryFinish(FlushedUpdatedTimeStamp, FlushedDeletedEntryNo) then begin
+                    if UpdatedLastTimeStamp < FlushedUpdatedTimeStamp then
+                        UpdatedLastTimeStamp := FlushedUpdatedTimeStamp;
+                    if DeletedLastEntryNo < FlushedDeletedEntryNo then
+                        DeletedLastEntryNo := FlushedDeletedEntryNo;
+                end else begin
+                    ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+                    Error(ErrorMessage);
+                end;
+        end else begin
+            ExportTableUpdates(TableID, FieldIdList, ADLSECommunication, UpdatedLastTimeStamp, DidUpserts, true);
+
+            // then export the deletes
+            ADLSECommunicationDeletions.Init(TableID, FieldIdList, DeletedLastEntryNo, EmitTelemetry);
+            // entity has been already checked above
+            ExportTableDeletes(TableID, ADLSECommunicationDeletions, DeletedLastEntryNo, DidUpserts, DidDeletes, true);
+
+            // A table that is empty on its initial export never produces a CSV file, so Fabric Open Mirroring never
+            // sees it leave the "Snapshotting" state and eventually marks it as failed. Write a header-only file instead.
+            if (ADLSESetup.GetStorageType() = ADLSESetup."Storage Type"::"Open Mirroring")
+                and (UpdatedLastTimeStamp = 0) and not DidUpserts and not DidDeletes
+            then
+                if not ADLSECommunication.TryExportEmptyFullLoad() then begin
+                    ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+                    Error(ErrorMessage);
+                end;
+        end;
     end;
 
     internal procedure UpdatedRecordsExist(TableID: Integer; UpdatedLastTimeStamp: BigInteger): Boolean
@@ -140,17 +180,28 @@ codeunit 11007166 "ADLSE Execute"
     end;
 
     local procedure SetFilterForUpdates(TableID: Integer; UpdatedLastTimeStamp: BigInteger; SkipTimestampSorting: Boolean; var RecordRef: RecordRef; var TimeStampFieldRef: FieldRef)
+    var
+        ADLSETable: Record "ADLSE Table";
+        ModifiedAtFieldRef: FieldRef;
     begin
         RecordRef.Open(TableID);
         if not SkipTimestampSorting then
             RecordRef.SetView(TimestampAscendingSortViewTxt);
         TimeStampFieldRef := RecordRef.Field(0); // 0 is the TimeStamp field
         TimeStampFieldRef.SetFilter('>%1', UpdatedLastTimeStamp);
+
+        // Bound this run to the current initial-load batch, so large tables can be caught up in date-bounded deltas.
+        // Records with no tracked SystemModifiedAt (legacy data predating that system field) must still be included.
+        if ADLSETable.Get(TableID) and (ADLSETable."Initial Load End Date" <> 0D) then begin
+            ModifiedAtFieldRef := RecordRef.Field(RecordRef.SystemModifiedAtNo());
+            ModifiedAtFieldRef.SetFilter('<=%1|%2', CreateDateTime(ADLSETable."Initial Load End Date", 235959T), 0DT);
+        end;
     end;
 
-    local procedure ExportTableUpdates(TableID: Integer; FieldIdList: List of [Integer]; ADLSECommunication: Codeunit "ADLSE Communication"; var UpdatedLastTimeStamp: BigInteger; var DidUpserts: Boolean)
+    local procedure ExportTableUpdates(TableID: Integer; FieldIdList: List of [Integer]; ADLSECommunication: Codeunit "ADLSE Communication"; var UpdatedLastTimeStamp: BigInteger; var DidUpserts: Boolean; DoFinish: Boolean)
     var
         ADLSESetup: Record "ADLSE Setup";
+        ADLSETable: Record "ADLSE Table";
         ADLSESeekData: Report "ADLSE Seek Data";
         ADLSEExecution: Codeunit "ADLSE Execution";
         ADLSEUtil: Codeunit "ADLSE Util";
@@ -228,14 +279,23 @@ codeunit 11007166 "ADLSE Execute"
 
             if ErrorMessage.Message() <> '' then
                 Error(ErrorMessage);
-            if ADLSECommunication.TryFinish(FlushedTimeStamp) then begin
-                if UpdatedLastTimeStamp < FlushedTimeStamp then // sample the highest timestamp, to cater to the eventuality that the records do not appear sorted per timestamp
-                    UpdatedLastTimeStamp := FlushedTimeStamp
-            end else
-                ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+            if DoFinish then
+                if ADLSECommunication.TryFinish(FlushedTimeStamp) then begin
+                    if UpdatedLastTimeStamp < FlushedTimeStamp then // sample the highest timestamp, to cater to the eventuality that the records do not appear sorted per timestamp
+                        UpdatedLastTimeStamp := FlushedTimeStamp
+                end else
+                    ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
             if ErrorMessage.Message() <> '' then
                 Error(ErrorMessage);
         end;
+
+        // Current initial-load batch is fully exported; clear the bound so the next run can be set to the following batch.
+        if ADLSETable.Get(TableID) and (ADLSETable."Initial Load End Date" <> 0D) and (not DidUpserts or NoMoreToCollect) then begin
+            ADLSETable."Initial Load End Date" := 0D;
+            ADLSETable.Modify();
+            Commit();
+        end;
+
         if EmitTelemetry then
             ADLSEExecution.Log('ADLSE-009', 'Updated records exported', Verbosity::Normal);
     end;
@@ -257,7 +317,7 @@ codeunit 11007166 "ADLSE Execute"
     end;
 
     [InherentPermissions(PermissionObjectType::TableData, Database::"ADLSE Deleted Record", 'r')]
-    local procedure ExportTableDeletes(TableID: Integer; ADLSECommunication: Codeunit "ADLSE Communication"; var DeletedLastEntryNo: BigInteger; DidUpserts: Boolean)
+    local procedure ExportTableDeletes(TableID: Integer; ADLSECommunication: Codeunit "ADLSE Communication"; var DeletedLastEntryNo: BigInteger; DidUpserts: Boolean; var DidDeletes: Boolean; DoFinish: Boolean)
     var
         ADLSEDeletedRecord: Record "ADLSE Deleted Record";
         ADLSESetup: Record "ADLSE Setup";
@@ -277,6 +337,7 @@ codeunit 11007166 "ADLSE Execute"
         SetFilterForDeletes(TableID, DeletedLastEntryNo, ADLSEDeletedRecord);
 
         if ADLSESeekData.FindRecords(ADLSEDeletedRecord) then begin
+            DidDeletes := true;
             RecordRef.Open(ADLSEDeletedRecord."Table ID");
 
             FixDeletedRecordThatAreInTable(ADLSEDeletedRecord);
@@ -300,10 +361,11 @@ codeunit 11007166 "ADLSE Execute"
                     end;
                 until ADLSEDeletedRecord.Next() = 0;
 
-            if ADLSECommunication.TryFinish(FlushedTimeStamp) then
-                DeletedLastEntryNo := FlushedTimeStamp
-            else
-                ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
+            if DoFinish then
+                if ADLSECommunication.TryFinish(FlushedTimeStamp) then
+                    DeletedLastEntryNo := FlushedTimeStamp
+                else
+                    ErrorMessage.Message := StrSubstNo('%1%2', GetLastErrorText(), GetLastErrorCallStack());
         end;
         if EmitTelemetry then
             ADLSEExecution.Log('ADLSE-011', 'Deleted records exported', Verbosity::Normal, CustomDimensions);
