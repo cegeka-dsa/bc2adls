@@ -7,16 +7,17 @@ trigger:
     - main
   paths:
     include:
-      - businesscentral
+      - businessCentral
 
 variables:
   AlFolder: '$(RepoLocalPath)\extensions\.alpackages'
   BackupFolder: '$(RepoLocalPath)\extensions\database'
   ContainerName: 'C$(Build.BuildId)'
-  RepoLocalPath: '$(Build.Repository.LocalPath)\bc2adls'
+  RepoLocalPath: '$(Build.SourcesDirectory)\bc2adls'
+  ERPBuildsLocalPath: '$(Build.SourcesDirectory)\ERP.Builds'
   LicenseFile: '$(System.ArtifactsDirectory)\dev.bclicense'
-  ProjectFolder: $(RepoLocalPath)\businesscentral
-  BuildScriptPath: '$(RepoLocalPath)\Build'
+  ProjectFolder: $(RepoLocalPath)\businessCentral
+  BuildScriptPath: '$(RepoLocalPath)\build'
   TargetAppFile: '<Set in script invoke-buildonly.ps1>'
   AppVersion: '<Set in script invoke-buildonly.ps1>'
   StorageAccount: '<Read from build-params in ERP AL repo>'
@@ -24,7 +25,7 @@ variables:
   PublishFolder: $(System.ArtifactsDirectory)\Apps
   SignApp: true
   AppSourceConfigPath: '$(RepoLocalPath)\build\AppSourceConfig.json'
-  AppSourceConfigOutputPath: '$(RepoLocalPath)\businesscentral\OfferingAppConfig.json'
+  AppSourceConfigOutputPath: '$(RepoLocalPath)\businessCentral\OfferingAppConfig.json'
   ForceAppSourceValidation: ${{parameters.ForceAppSourceValidation}}
   ERPBranchName: ${{parameters.ERPBranchName}}
   ERPValidationBranchName: ${{parameters.ERPValidationBranchName}}
@@ -64,16 +65,18 @@ jobs:
   steps:
   - checkout: self
     clean: true
+    path: s/bc2adls
 
   - checkout: git://DynamicsEmpire/_git/ERP.Builds@refs/heads/$(ERPBuildsBranch)
     clean: true
+    path: s/ERP.Builds
 
   - task: AzurePowerShell@4
     displayName: 'Load pipeline modules'
     inputs:
       azureSubscription: 'cdsa.nl - dev/test (GECNL750.201)'
       ScriptType: 'FilePath'
-      ScriptPath: '$(Build.Repository.LocalPath)/ERP.Builds/common/Install-cdsaPipelineModule.ps1'
+      ScriptPath: '$(ERPBuildsLocalPath)\common\Install-cdsaPipelineModule.ps1'
       ScriptArguments: '-ModuleName @("cdsa.build.al", "cdsa.devops", "bccontainerhelper") -Verbose'
       azurePowerShellVersion: 'LatestVersion'
     env:
